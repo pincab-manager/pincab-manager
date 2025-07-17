@@ -707,7 +707,8 @@ class TablesEditorDialog:
 
         # Retrieved selected item's name
         selected_item_name = self.__get_selected_item_name()
-        if selected_item_name is None:
+        if selected_item_name is None or \
+                selected_item_name == Context.get_text('info_parent_folder'):
             return self.__current_folder_path
 
         return os.path.join(

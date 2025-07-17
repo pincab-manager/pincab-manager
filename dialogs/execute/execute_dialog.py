@@ -7,7 +7,6 @@ from tkinter import messagebox
 from tkinter import ttk
 
 from executor.bdd_tables.bdd_tables_executor import BDDTablesExecutor
-from executor.configs.configs_executor import ConfigsExecutor
 from executor.playlists.playlists_executor import PlaylistsExecutor
 from executor.tables.tables_executor import TablesExecutor
 from libraries.constants.constants import Category, Constants
@@ -135,12 +134,13 @@ class ExecuteDialog:
                     button_close=button_close
                 )
 
-            case Category.CONFIGS_FILES:
-                self.__executor = ConfigsExecutor(
-                    progress_bar=progress_bar,
-                    progress_label=self.progress_label,
-                    button_close=button_close
-                )
+            case Category.CONFIGS:
+                print('To implement')
+                # self.__executor = OldConfigsExecutor(
+                #     progress_bar=progress_bar,
+                #     progress_label=self.progress_label,
+                #     button_close=button_close
+                # )
 
         # Execute in a thread
         self.execution_thread = threading.Thread(
