@@ -492,6 +492,10 @@ class RefreshDialog:
 
                             # Interrupt process if requested
                             if self.__interruption_requested:
+
+                                # Destroy Selenium Web Browser
+                                Context.destroy_selenium_web_browser()
+
                                 self.__on_close()
                                 return
 
@@ -545,6 +549,9 @@ class RefreshDialog:
 
                             # Append row
                             table_top_rows.append(row)
+
+                        # Destroy Selenium Web Browser
+                        Context.destroy_selenium_web_browser()
 
             case Category.PLAYLISTS:
                 # Append row for each playlist
