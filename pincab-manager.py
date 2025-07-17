@@ -618,6 +618,9 @@ class ApplicationWindow:
         # Create window
         self.__window = tk.Tk()
 
+        # Handle window close event
+        self.__window.protocol("WM_DELETE_WINDOW", self.__on_close)
+
         # Fix windows's icon
         self.__icon_image = tk.PhotoImage(
             file=os.path.join(
@@ -646,6 +649,11 @@ class ApplicationWindow:
 
         # Show window
         self.__window.mainloop()
+
+    def __on_close(self):
+        """Called when the window is closing"""
+        Context.destroy()
+        self.__window.destroy()
 
 
 if __name__ == "__main__":

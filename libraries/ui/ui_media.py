@@ -369,6 +369,8 @@ class UIMedia(tk.LabelFrame):
     def __run_import_media(self, should_interrupt):
         """Run import media from a file"""
 
+        # pylint: disable=unused-argument
+
         # Retrieve extension
         _, file_extension = os.path.splitext(self.__source_file_path)
 
@@ -436,6 +438,8 @@ class UIMedia(tk.LabelFrame):
 
     def __run_export_media(self, should_interrupt):
         """Run export media"""
+
+        # pylint: disable=unused-argument
 
         FileHelper.copy_file(
             source_file_path=self.__current_file_path,
@@ -681,6 +685,8 @@ class UIMedia(tk.LabelFrame):
 
     def __run_delete_media(self, should_interrupt):
         """Run delete media"""
+
+        # pylint: disable=unused-argument
 
         # Close VLC window if already open
         self.__close_vlc_window()

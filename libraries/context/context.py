@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 """Context"""
 
-import atexit
 import json
 import sys
 import os
@@ -97,6 +96,7 @@ class Context:
 
         # Initialize selenium's web browser
         chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument("--headless=new")
         chrome_options.add_argument("--log-level=3")
         chrome_options.add_experimental_option(
             "excludeSwitches", ["enable-logging"]
@@ -105,7 +105,6 @@ class Context:
             options=chrome_options
         )
         Context.__selenium_web_browser.minimize_window()
-        atexit.register(Context.__selenium_web_browser.quit)
 
         # Initialize paths
         Context.__pinup_path = ''

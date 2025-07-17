@@ -179,6 +179,8 @@ class AboutDialog:
     def __run_update(self, should_interrupt):
         """Run update"""
 
+        # pylint: disable=unused-argument
+
         download_url = self.__exe_asset["browser_download_url"]
         download_exe_name = self.__exe_asset["name"]
 
@@ -196,23 +198,14 @@ class AboutDialog:
 
         # Retrieve current executable
         current_exe_path = sys.executable
-        current_exe_name = os.path.basename(current_exe_path)
-        current_exe_dir = os.path.dirname(current_exe_path)
         temp_dir = tempfile.gettempdir()
         batch_path = os.path.join(temp_dir, "do_update.bat")
         batch_script = f"""@echo off
-echo [Updater] Closing application if running...
-taskkill /F /IM {current_exe_name} >nul 2>&1
-
 echo [Updater] Waiting for the process to close...
 timeout /t 2 /nobreak >nul
 
 echo [Updater] Replacing executable...
 copy /Y "{temp_exe_path}" "{current_exe_path}"
-
-echo [Updater] Restarting application...
-cd /d "{current_exe_dir}"
-cmd /c start "" "{current_exe_name}"
 
 echo [Updater] Done.
 exit
@@ -221,5 +214,10 @@ exit
         with open(batch_path, "w", encoding="utf-8") as f:
             f.write(batch_script)
 
+        # pylint: disable=consider-using-with
+
         # Execute batch in a new console
         subprocess.Popen(['cmd', '/c', 'start', '', batch_path])
+
+        # Kill the application
+        os._exit(0)
