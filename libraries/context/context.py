@@ -94,18 +94,6 @@ class Context:
         lang = locale.getlocale()[0]
         Context.__lang_code = 'fr' if lang.startswith('fr') else 'en'
 
-        # Initialize selenium's web browser
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument("--headless=new")
-        chrome_options.add_argument("--log-level=3")
-        chrome_options.add_experimental_option(
-            "excludeSwitches", ["enable-logging"]
-        )
-        Context.__selenium_web_browser = webdriver.Chrome(
-            options=chrome_options
-        )
-        Context.__selenium_web_browser.minimize_window()
-
         # Initialize paths
         Context.__pinup_path = ''
         Context.__steam_path = ''
@@ -133,8 +121,32 @@ class Context:
         """Destroy context"""
 
         if Context.__initialized:
-            Context.__selenium_web_browser.quit()
+            Context.destroy_selenium_web_browser()
             Context.__initialized = False
+
+    @staticmethod
+    def init_selenium_web_browser():
+        """Initialize Selenium Web Browser"""
+
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument("--window-position=-32000,-32000")
+        chrome_options.add_argument("--window-size=1,1")
+        chrome_options.add_argument("--log-level=3")
+        chrome_options.add_experimental_option(
+            "excludeSwitches", ["enable-logging"]
+        )
+        Context.__selenium_web_browser = webdriver.Chrome(
+            options=chrome_options
+        )
+        Context.__selenium_web_browser.minimize_window()
+
+    @staticmethod
+    def destroy_selenium_web_browser():
+        """Destroy Selenium Web Browser"""
+
+        if Context.__selenium_web_browser is not None:
+            Context.__selenium_web_browser.quit()
+            Context.__selenium_web_browser = None
 
     @staticmethod
     def get_hostname() -> str:
@@ -802,5 +814,8 @@ class Context:
 
         if not Context.__initialized:
             Context.init()
+
+        if Context.__selenium_web_browser is None:
+            Context.init_selenium_web_browser()
 
         return Context.__selenium_web_browser

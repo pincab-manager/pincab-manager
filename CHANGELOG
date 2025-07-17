@@ -1,3 +1,6 @@
+R0.9.3 - 07/17/2025
+- fix(selenium): Load selenium web browser only when verifying table's version
+
 R0.9.2 - 07/17/2025
 - fix(test_update): Test for update
 

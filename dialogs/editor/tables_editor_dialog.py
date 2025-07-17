@@ -1240,6 +1240,10 @@ class TablesEditorDialog:
         for row in rows:
 
             if should_interrupt():
+
+                # Destroy Selenium Web Browser
+                Context.destroy_selenium_web_browser()
+
                 return
 
             if row in selected_rows:
@@ -1257,6 +1261,9 @@ class TablesEditorDialog:
                 )
                 break
             row_idx += 1
+
+        # Destroy Selenium Web Browser
+        Context.destroy_selenium_web_browser()
 
         self.__table.set_rows(
             rows=rows
@@ -1354,6 +1361,9 @@ class TablesEditorDialog:
         self.__table.set_selected_rows(
             rows_idx=[0]
         )
+
+        # Destroy Selenium Web Browser
+        Context.destroy_selenium_web_browser()
 
     def __create_table(self):
         """Create a new table"""
@@ -1537,6 +1547,10 @@ class TablesEditorDialog:
         for row in rows:
 
             if should_interrupt():
+
+                # Destroy Selenium Web Browser
+                Context.destroy_selenium_web_browser()
+
                 return
 
             if row[Constants.UI_TABLE_KEY_COL_ID] == self.__current_csv_item[Constants.CSV_COL_ID]:
@@ -1550,6 +1564,10 @@ class TablesEditorDialog:
                 )
                 break
             row_idx += 1
+
+        # Destroy Selenium Web Browser
+        Context.destroy_selenium_web_browser()
+
         self.__table.set_rows(
             rows=rows
         )
@@ -1650,6 +1668,10 @@ class TablesEditorDialog:
         for row in rows:
 
             if should_interrupt():
+
+                # Destroy Selenium Web Browser
+                Context.destroy_selenium_web_browser()
+
                 return
 
             if row[Constants.UI_TABLE_KEY_COL_ID] == self.__current_csv_item[Constants.CSV_COL_ID]:
@@ -1663,6 +1685,10 @@ class TablesEditorDialog:
                 )
                 break
             row_idx += 1
+
+        # Destroy Selenium Web Browser
+        Context.destroy_selenium_web_browser()
+
         self.__table.set_rows(
             rows=rows
         )
@@ -1734,6 +1760,10 @@ class TablesEditorDialog:
         for row in rows:
 
             if should_interrupt():
+
+                # Destroy Selenium Web Browser
+                Context.destroy_selenium_web_browser()
+
                 return
 
             if row[Constants.UI_TABLE_KEY_COL_ID] == self.__current_csv_item[Constants.CSV_COL_ID]:
@@ -1747,6 +1777,10 @@ class TablesEditorDialog:
                 )
                 break
             row_idx += 1
+
+        # Destroy Selenium Web Browser
+        Context.destroy_selenium_web_browser()
+
         self.__table.set_rows(
             rows=rows
         )
