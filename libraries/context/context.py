@@ -97,6 +97,7 @@ class Context:
 
         # Initialize selenium's web browser
         chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument("--headless=new")
         chrome_options.add_argument("--log-level=3")
         chrome_options.add_experimental_option(
             "excludeSwitches", ["enable-logging"]
