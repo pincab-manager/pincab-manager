@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 """Context"""
 
-import atexit
 import json
 import sys
 import os
@@ -106,7 +105,6 @@ class Context:
             options=chrome_options
         )
         Context.__selenium_web_browser.minimize_window()
-        atexit.register(Context.__selenium_web_browser.quit)
 
         # Initialize paths
         Context.__pinup_path = ''
