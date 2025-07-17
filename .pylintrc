@@ -1,0 +1,10 @@
+[SIMILARITIES]
+
+# Minimum lines number of a similarity.
+min-similarity-lines=200
+
+[MESSAGES CONTROL]
+disable=
+    too-few-public-methods,
+    broad-exception-raised,
+    broad-exception-caught

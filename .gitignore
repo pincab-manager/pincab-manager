@@ -1,0 +1,17 @@
+# IDE
+.vscode/
+.venv/
+
+# Pycache
+*.pyc
+**/__pycache__
+**/.venv
+
+# Specific
+logs/
+cache/
+
+# Package
+build
+dist
+app.spec
