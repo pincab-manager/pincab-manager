@@ -18,6 +18,7 @@ from libraries.verifier.verifier import Verifier
 # pylint: disable=attribute-defined-outside-init, too-many-branches
 # pylint: disable=too-many-instance-attributes, too-many-statements
 # pylint: disable=line-too-long, too-many-locals, too-many-lines
+# pylint: disable=too-many-return-statements
 
 
 class RefreshDialog:
