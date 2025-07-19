@@ -32,7 +32,6 @@ class Context:
     __pinup_path: Path = None
     __steam_path: Path = None
     __emulators_paths: dict[Emulator, Path] = {}
-    __data_path: Path = None
     __selected_category: Category = None
     __selected_emulator: Emulator = None
     __selected_action: Action = None
@@ -99,7 +98,6 @@ class Context:
         Context.__steam_path = ''
         for emulator in Emulator:
             Context.__emulators_paths[emulator] = ''
-        Context.__data_path = ''
 
         # Initialize monitor
         Context.__monitor = 0
@@ -422,62 +420,16 @@ class Context:
         return Context.__emulators_paths[emulator]
 
     @staticmethod
-    def get_data_path() -> Path:
-        """Get data path"""
+    def get_configs_path() -> Path:
+        """Get configs path"""
 
         if not Context.__initialized:
             Context.init()
 
-        return Context.__data_path
-
-    @staticmethod
-    def get_config_paths(
-        components: list[Component],
-        config_text: str
-    ) -> list[Path]:
-        """Get config paths"""
-
-        if not Context.__initialized:
-            Context.init()
-
-        config_path = ''
-        for config in Constants.CONFIGS:
-            if Context.get_text(Constants.CONFIG_TEXT_PREFIX + config) == config_text:
-                config_path = config
-                break
-
-        paths: list[Path] = []
-        if Component.SYSTEM_32_BITS in components:
-            component_path = '32 bits'
-            paths.append(Path(os.path.join(
-                Context.get_working_path(),
-                Constants.CONFIGS_PATH,
-                component_path,
-                config_path
-            )))
-            paths.append(Path(os.path.join(
-                Context.get_bdd_path(),
-                Constants.COMMON_PATH,
-                component_path,
-                config_path
-            )))
-
-        if Component.SYSTEM_64_BITS in components:
-            component_path = '64 bits'
-            paths.append(Path(os.path.join(
-                Context.get_working_path(),
-                Constants.CONFIGS_PATH,
-                component_path,
-                config_path
-            )))
-            paths.append(Path(os.path.join(
-                Context.get_bdd_path(),
-                Constants.COMMON_PATH,
-                component_path,
-                config_path
-            )))
-
-        return paths
+        return os.path.join(
+            Context.get_working_path(),
+            'configs'
+        )
 
     @staticmethod
     def get_monitor() -> int:

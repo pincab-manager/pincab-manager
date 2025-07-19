@@ -9,7 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 from libraries.bdd.bdd_helper import BddHelper
-from libraries.constants.constants import Component, Constants, Emulator
+from libraries.constants.constants import Constants, Emulator
 from libraries.context.context import Context
 from libraries.file.file_helper import FileHelper
 from libraries.logging.logging_helper import LoggingHelper
@@ -1035,7 +1035,7 @@ class Verifier:
                 csv_table_id,
                 csv_table_version,
                 'config',
-                'user_values.reg'
+                f'user_values{Constants.REGEDIT_EXTENSION}'
             )
             if not FileHelper.is_file_exists(
                 file_path=file_path
@@ -1085,7 +1085,7 @@ class Verifier:
                 bdd_table_id,
                 bdd_table_version,
                 'config',
-                'user_values.reg'
+                f'user_values{Constants.REGEDIT_EXTENSION}'
             )
             if not FileHelper.is_file_exists(
                 file_path=file_path
@@ -1128,7 +1128,7 @@ class Verifier:
                 bdd_table_id,
                 bdd_table_version,
                 'config',
-                'user_values.reg'
+                f'user_values{Constants.REGEDIT_EXTENSION}'
             )
             if not FileHelper.is_file_exists(
                 file_path=file_path
@@ -1265,121 +1265,6 @@ class Verifier:
             bdd_file_path=Context.get_pinup_bdd_path(),
             table_name=bdd_table
         ) > 0
-
-    @staticmethod
-    def verify_config_files_install(
-        components: list[Component],
-        config_text: str
-    ):
-        """Verify if config files exist install"""
-
-        for source_folder_path in Context.get_config_paths(
-            components=components,
-            config_text=config_text
-        ):
-            relative_paths = FileHelper.list_relative_paths(
-                folder_path=source_folder_path,
-                file_name='*',
-                error_if_not_found=False
-            )
-            for relative_path in relative_paths:
-                file_path = os.path.join(
-                    str(Context.get_pinup_path().drive) + '\\',
-                    relative_path
-                )
-                if not FileHelper.is_file_exists(
-                    file_path=file_path
-                ):
-                    LoggingHelper.log_warning(
-                        message=Context.get_text(
-                            'warning_not_found_file',
-                            file=str(file_path)
-                        )
-                    )
-                    return False
-
-        return True
-
-    @staticmethod
-    def verify_config_files_export(
-        components: list[Component],
-        config_text: str
-    ):
-        """Verify if config files exist export"""
-
-        for source_folder_path in Context.get_config_paths(
-            components=components,
-            config_text=config_text
-        ):
-            relative_paths = FileHelper.list_relative_paths(
-                folder_path=source_folder_path,
-                file_name='*',
-                error_if_not_found=False
-            )
-            for relative_path in relative_paths:
-                file1_path = os.path.join(
-                    source_folder_path,
-                    relative_path
-                )
-
-                file2_path = os.path.join(
-                    str(Context.get_pinup_path().drive) + '\\',
-                    relative_path
-                )
-
-                if not FileHelper.is_file_exists(
-                    file_path=file1_path
-                ):
-                    LoggingHelper.log_warning(
-                        message=Context.get_text(
-                            'warning_not_found_file',
-                            file=str(file1_path)
-                        )
-                    )
-                    return False
-
-                if not FileHelper.compare_files(
-                    file1_path=file1_path,
-                    file2_path=file2_path
-                ):
-                    LoggingHelper.log_warning(
-                        message=Context.get_text(
-                            'warning_differents_files',
-                            file1=str(file1_path),
-                            file2=str(file2_path)
-                        )
-                    )
-                    return False
-
-        return True
-
-    @staticmethod
-    def verify_config_files_uninstall(
-        components: list[Component],
-        config_text: str
-    ):
-        """Verify if config files exist uninstall"""
-
-        for source_folder_path in Context.get_config_paths(
-            components=components,
-            config_text=config_text
-        ):
-            relative_paths = FileHelper.list_relative_paths(
-                folder_path=source_folder_path,
-                file_name='*',
-                error_if_not_found=False
-            )
-            for relative_path in relative_paths:
-                file_path = os.path.join(
-                    str(Context.get_pinup_path().drive) + '\\',
-                    relative_path
-                )
-                if FileHelper.is_file_exists(
-                    file_path=file_path
-                ):
-                    return False
-
-        return True
 
     @staticmethod
     def verify_true_or_false_values(

@@ -84,7 +84,7 @@ class AbstractExecutor(ABC):
             case Category.PLAYLISTS:
                 rows = Context.get_selected_playlists_rows()
 
-            case Category.CONFIGS_FILES:
+            case Category.CONFIGS:
                 rows = Context.get_selected_configs_rows()
 
         # Initialize progress bar

@@ -10,7 +10,21 @@ class Category(Enum):
     TABLES = 'category_tables'
     PLAYLISTS = 'category_playlists'
     BDD_TABLES = 'category_bdd_tables'
-    CONFIGS_FILES = 'category_configs_files'
+    CONFIGS = 'category_configs'
+
+
+class Component(Enum):
+    """Component"""
+
+    CONFIG_XML = 'component_config_xml'
+    CONFIG_REG = 'component_config_reg'
+    EMULATOR_PLAYLIST = 'component_emulator_playlist'
+    EMULATOR_TABLE = 'component_emulator_table'
+    PINUP_MEDIA = 'component_pinup_media'
+    PINUP_VIDEOS = 'component_pinup_videos'
+    PINUP_DATABASE = 'component_pinup_database'
+    FILES = 'component_files'
+    REGISTRY = 'component_registry'
 
 
 class Action(Enum):
@@ -50,20 +64,6 @@ class Emulator(Enum):
     FUTURE_PINBALL = 'Future Pinball'
 
 
-class Component(Enum):
-    """Component"""
-
-    CONFIG_XML = 'component_config_xml'
-    CONFIG_REG = 'component_config_reg'
-    EMULATOR_PLAYLIST = 'component_emulator_playlist'
-    EMULATOR_TABLE = 'component_emulator_table'
-    PINUP_MEDIA = 'component_pinup_media'
-    PINUP_VIDEOS = 'component_pinup_videos'
-    PINUP_DATABASE = 'component_pinup_database'
-    SYSTEM_32_BITS = 'component_system_32_bits'
-    SYSTEM_64_BITS = 'component_system_64_bits'
-
-
 class Constants:
     """Class to store constants"""
 
@@ -82,8 +82,6 @@ class Constants:
 
     # Constants for paths
     RESOURCES_PATH = 'resources'
-    PLAYLISTS_PATH = 'playlists'
-    TABLES_PATH = 'tables'
     CONFIGS_PATH = 'configs'
     COMMON_PATH = 'common'
 
@@ -193,3 +191,8 @@ class Constants:
     PINUP_VIDEOS_BATCH_EXTENSIONS = {
         '.bat'
     }
+
+    # Regedit constants
+    REGEDIT_ROOT_KEY_NAME = 'HKEY_CURRENT_USER'
+    REGEDIT_KEY_SEPARATOR = '\\'
+    REGEDIT_EXTENSION = '.reg'

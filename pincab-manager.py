@@ -9,6 +9,8 @@ from tkinter import ttk
 from tkinter import filedialog
 
 from dialogs.about.about_dialog import AboutDialog
+from dialogs.editor.configs_files_editor_dialog import ConfigsFilesEditorDialog
+from dialogs.editor.configs_regedit_editor_dialog import ConfigsRegistryEditorDialog
 from dialogs.editor.media_editor_dialog import MediaEditorDialog
 from dialogs.editor.playlists_editor_dialog import PlaylistsEditorDialog
 from dialogs.editor.tables_editor_dialog import TablesEditorDialog
@@ -69,9 +71,14 @@ class ApplicationWindow:
             if emulator.value == Context.list_available_emulators()[emulator_idx]:
                 Context.set_selected_emulator(emulator)
 
-        Context.set_selected_action(
-            list(Action)[self.combo_action.current()]
-        )
+        for action in Action:
+            if Context.get_text(
+                action.value,
+                category=Context.get_text(
+                    Context.get_selected_category().value
+                )
+            ) == self.combo_action.get():
+                Context.set_selected_action(action)
 
         # If source is category, show/hide emulator and select first action
         if event.widget == self.combo_category:
@@ -99,7 +106,8 @@ class ApplicationWindow:
                     continue
                 if action == Action.EDIT and \
                         Context.get_selected_category() != Category.TABLES and \
-                        Context.get_selected_category() != Category.PLAYLISTS:
+                        Context.get_selected_category() != Category.PLAYLISTS and \
+                        Context.get_selected_category() != Category.CONFIGS:
                     continue
                 category_actions.append(Context.get_text(
                     action.value,
@@ -176,9 +184,9 @@ class ApplicationWindow:
             case Category.BDD_TABLES:
                 components.append(Component.PINUP_DATABASE)
 
-            case Category.CONFIGS_FILES:
-                components.append(Component.SYSTEM_32_BITS)
-                components.append(Component.SYSTEM_64_BITS)
+            case Category.CONFIGS:
+                components.append(Component.FILES)
+                components.append(Component.REGISTRY)
 
         table_bottom_rows = []
         for component in components:
@@ -257,7 +265,7 @@ class ApplicationWindow:
                     self.table_bottom.get_selected_rows()
                 )
 
-            case Category.CONFIGS_FILES:
+            case Category.CONFIGS:
                 Context.set_selected_configs_rows(
                     self.table_top.get_selected_rows()
                 )
@@ -301,6 +309,20 @@ class ApplicationWindow:
                 case Component.EMULATOR_PLAYLIST:
                     # If component EMULATOR_PLAYLIST
                     PlaylistsEditorDialog(
+                        self.__window,
+                        callback=self.__update_data
+                    )
+
+                case Component.FILES:
+                    # If component FILES
+                    ConfigsFilesEditorDialog(
+                        self.__window,
+                        callback=self.__update_data
+                    )
+
+                case Component.REGISTRY:
+                    # If component REGISTRY
+                    ConfigsRegistryEditorDialog(
                         self.__window,
                         callback=self.__update_data
                     )

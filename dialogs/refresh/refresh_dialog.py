@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """Dialog to refresh the application"""
 
+import os
 import threading
 import tkinter as tk
 from tkinter import ttk
@@ -11,6 +12,7 @@ from libraries.bdd.bdd_helper import BddHelper
 from libraries.constants.constants import Action, Category, Component, Constants, Emulator
 from libraries.context.context import Context
 from libraries.csv.csv_helper import CsvHelper
+from libraries.file.file_helper import FileHelper
 from libraries.list.list_helper import ListHelper
 from libraries.ui.ui_helper import UIHelper
 from libraries.verifier.verifier import Verifier
@@ -1053,182 +1055,65 @@ class RefreshDialog:
                             # Append row
                             table_top_rows.append(row)
 
-            case Category.CONFIGS_FILES:
-                bdd_tables = BddHelper.list_bdd_tables(
-                    bdd_file_path=Context.get_pinup_bdd_path()
+            case Category.CONFIGS:
+                # Create the configs directory if it doesn't exist
+                if not os.path.exists(Context.get_configs_path()):
+                    os.makedirs(Context.get_configs_path())
+
+                configs_paths = FileHelper.list_sub_directories(
+                    folder_path=Context.get_configs_path()
                 )
 
-                match(Context.get_selected_action()):
-                    case Action.INSTALL:
+                # Initialize progress bar
+                item_total_counter = len(configs_paths)
+                self.progress_bar.config(
+                    maximum=item_total_counter
+                )
 
-                        # Initialize progress bar
-                        item_total_counter = len(Constants.CONFIGS)
-                        self.progress_bar.config(
-                            maximum=item_total_counter
+                for config in configs_paths:
+
+                    # Interrupt process if requested
+                    if self.__interruption_requested:
+                        self.__on_close()
+                        return
+
+                    # Increment progress bar
+                    item_current_counter = configs_paths.index(
+                        config
+                    )
+                    self.progress_bar['value'] = item_current_counter
+                    self.progress_label.config(
+                        text=Context.get_text(
+                            'refresh_in_progress',
+                            item_name=config,
+                            item_current_counter=item_current_counter,
+                            item_total_counter=item_total_counter
                         )
+                    )
 
-                        for config in Constants.CONFIGS:
+                    # Waiting 0.1 seconde to see the dialog if the process is quick
+                    time.sleep(0.1)
 
-                            # Interrupt process if requested
-                            if self.__interruption_requested:
-                                self.__on_close()
-                                return
+                    # Build row
+                    row = {}
+                    row[Constants.UI_TABLE_KEY_COL_SELECTION] = False
+                    row[Constants.UI_TABLE_KEY_COL_ID] = config
+                    row[Constants.UI_TABLE_KEY_COL_NAME] = config
+                    row[Component.FILES.value] = True
+                    row[Component.REGISTRY.value] = True
 
-                            # Increment progress bar
-                            item_current_counter = Constants.CONFIGS.index(
-                                config
-                            )
-                            self.progress_bar['value'] = item_current_counter
-                            self.progress_label.config(
-                                text=Context.get_text(
-                                    'refresh_in_progress',
-                                    item_name=Context.get_text(
-                                        Constants.CONFIG_TEXT_PREFIX + config),
-                                    item_current_counter=item_current_counter,
-                                    item_total_counter=item_total_counter
-                                )
-                            )
+                    # Retrieve color
+                    row[Constants.UI_TABLE_KEY_COLOR] = Verifier.retrieve_verified_row_color(
+                        row=row
+                    )
 
-                            # Waiting 0.1 seconde to see the dialog if the process is quick
-                            time.sleep(0.1)
+                    # Retrieve color
+                    row[Constants.UI_TABLE_KEY_COLOR] = Verifier.retrieve_verified_row_color(
+                        row=row
+                    )
 
-                            # Build row
-                            row = {}
-                            row[Constants.UI_TABLE_KEY_COL_SELECTION] = False
-                            row[Constants.UI_TABLE_KEY_COL_ID] = Context.get_text(
-                                Constants.CONFIG_TEXT_PREFIX + config
-                            )
-                            row[Constants.UI_TABLE_KEY_COL_NAME] = row[Constants.UI_TABLE_KEY_COL_ID]
-                            row[Component.SYSTEM_32_BITS.value] = Verifier.verify_config_files_install(
-                                components=[Component.SYSTEM_32_BITS],
-                                config_text=row[Constants.UI_TABLE_KEY_COL_ID]
-                            )
-                            row[Component.SYSTEM_64_BITS.value] = Verifier.verify_config_files_install(
-                                components=[Component.SYSTEM_64_BITS],
-                                config_text=row[Constants.UI_TABLE_KEY_COL_ID]
-                            )
-
-                            # Retrieve color
-                            row[Constants.UI_TABLE_KEY_COLOR] = Verifier.retrieve_verified_row_color(
-                                row=row
-                            )
-
-                            # Append row
-                            table_top_rows.append(row)
-
-                    case Action.UNINSTALL:
-
-                        # Initialize progress bar
-                        item_total_counter = len(Constants.CONFIGS)
-                        self.progress_bar.config(
-                            maximum=item_total_counter
-                        )
-
-                        for config in Constants.CONFIGS:
-
-                            # Interrupt process if requested
-                            if self.__interruption_requested:
-                                self.__on_close()
-                                return
-
-                            # Increment progress bar
-                            item_current_counter = Constants.CONFIGS.index(
-                                config
-                            )
-                            self.progress_bar['value'] = item_current_counter
-                            self.progress_label.config(
-                                text=Context.get_text(
-                                    'refresh_in_progress',
-                                    item_name=Context.get_text(
-                                        Constants.CONFIG_TEXT_PREFIX + config),
-                                    item_current_counter=item_current_counter,
-                                    item_total_counter=item_total_counter
-                                )
-                            )
-
-                            # Waiting 0.1 seconde to see the dialog if the process is quick
-                            time.sleep(0.1)
-
-                            # Build row
-                            row = {}
-                            row[Constants.UI_TABLE_KEY_COL_SELECTION] = False
-                            row[Constants.UI_TABLE_KEY_COL_ID] = Context.get_text(
-                                Constants.CONFIG_TEXT_PREFIX + config
-                            )
-                            row[Constants.UI_TABLE_KEY_COL_NAME] = row[Constants.UI_TABLE_KEY_COL_ID]
-                            row[Component.SYSTEM_32_BITS.value] = Verifier.verify_config_files_uninstall(
-                                components=[Component.SYSTEM_32_BITS],
-                                config_text=row[Constants.UI_TABLE_KEY_COL_ID]
-                            )
-                            row[Component.SYSTEM_64_BITS.value] = Verifier.verify_config_files_uninstall(
-                                components=[Component.SYSTEM_64_BITS],
-                                config_text=row[Constants.UI_TABLE_KEY_COL_ID]
-                            )
-
-                            # Retrieve color
-                            row[Constants.UI_TABLE_KEY_COLOR] = Verifier.retrieve_verified_row_color(
-                                row=row
-                            )
-
-                            # Append row
-                            table_top_rows.append(row)
-
-                    case Action.EXPORT:
-
-                        # Initialize progress bar
-                        item_total_counter = len(Constants.CONFIGS)
-                        self.progress_bar.config(
-                            maximum=item_total_counter
-                        )
-
-                        for config in Constants.CONFIGS:
-
-                            # Interrupt process if requested
-                            if self.__interruption_requested:
-                                self.__on_close()
-                                return
-
-                            # Increment progress bar
-                            item_current_counter = Constants.CONFIGS.index(
-                                config
-                            )
-                            self.progress_bar['value'] = item_current_counter
-                            self.progress_label.config(
-                                text=Context.get_text(
-                                    'refresh_in_progress',
-                                    item_name=Context.get_text(
-                                        Constants.CONFIG_TEXT_PREFIX + config),
-                                    item_current_counter=item_current_counter,
-                                    item_total_counter=item_total_counter
-                                )
-                            )
-
-                            # Waiting 0.1 seconde to see the dialog if the process is quick
-                            time.sleep(0.1)
-
-                            # Build row
-                            row = {}
-                            row[Constants.UI_TABLE_KEY_COL_SELECTION] = False
-                            row[Constants.UI_TABLE_KEY_COL_ID] = Context.get_text(
-                                Constants.CONFIG_TEXT_PREFIX + config
-                            )
-                            row[Constants.UI_TABLE_KEY_COL_NAME] = row[Constants.UI_TABLE_KEY_COL_ID]
-                            row[Component.SYSTEM_32_BITS.value] = Verifier.verify_config_files_export(
-                                components=[Component.SYSTEM_32_BITS],
-                                config_text=row[Constants.UI_TABLE_KEY_COL_ID]
-                            )
-                            row[Component.SYSTEM_64_BITS.value] = Verifier.verify_config_files_export(
-                                components=[Component.SYSTEM_64_BITS],
-                                config_text=row[Constants.UI_TABLE_KEY_COL_ID]
-                            )
-
-                            # Retrieve color
-                            row[Constants.UI_TABLE_KEY_COLOR] = Verifier.retrieve_verified_row_color(
-                                row=row
-                            )
-
-                            # Append row
-                            table_top_rows.append(row)
+                    # Append row
+                    table_top_rows.append(row)
 
         # Sort rows depending on UI_TABLE_KEY_COLOR (desc) and Constants.UI_TABLE_KEY_COL_NAME (asc)
         sorted_rows = sorted(
