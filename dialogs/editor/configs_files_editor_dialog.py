@@ -2,6 +2,7 @@
 """Dialog to edit configs files"""
 
 import os
+from pathlib import Path
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
@@ -48,7 +49,7 @@ class ConfigsFilesEditorDialog:
         self.__dialog = tk.Toplevel(parent)
 
         # Fix dialog's title
-        self.__dialog.title(Context.get_text('edit_configs'))
+        self.__dialog.title(Context.get_text('edit_configs_files'))
 
         # Fix dialog's size and position
         UIHelper.center_dialog(
@@ -85,7 +86,7 @@ class ConfigsFilesEditorDialog:
         self.__create_info_components()
         self.__create_close_components()
 
-        # Bind closing event to stop all media
+        # Bind closing event
         self.__dialog.protocol("WM_DELETE_WINDOW", self.__on_close)
 
         # Select the first row
@@ -226,7 +227,7 @@ class ConfigsFilesEditorDialog:
             pady=Constants.UI_PAD_BIG
         )
 
-        # Bind to show context menu
+        # Bind clicks
         self.__listbox.bind("<Button-3>", self.__show_context_menu)
         self.__listbox.bind("<Double-1>", self.__on_double_click)
 
@@ -730,6 +731,16 @@ class ConfigsFilesEditorDialog:
         if not self.__source_file_path:
             return
 
+        # Ask if keep absolute path
+        self.__keep_absolute_path = messagebox.askyesno(
+            Context.get_text('question'),
+            Context.get_text(
+                'question_keep_absolute_path',
+                path=self.__source_file_path
+            ),
+            parent=self.__dialog
+        )
+
         # Execute the import in a waiting dialog
         WaitingDialog(
             parent=self.__dialog,
@@ -740,22 +751,36 @@ class ConfigsFilesEditorDialog:
     def __run_import_file(self, should_interrupt):
         """Run import file"""
 
+        # Retrieve new file's name
         new_file_name = os.path.basename(
             self.__source_file_path
         )
 
-        # Import the new file
-        FileHelper.copy_file(
-            source_file_path=self.__source_file_path,
-            destination_file_path=os.path.join(
+        # Keep or not the absolute path
+        if self.__keep_absolute_path:
+            full_path = Path(self.__source_file_path).parent
+            destination_file_path = os.path.join(
+                self.__current_item_folder_path,
+                full_path.relative_to(full_path.drive + '\\')
+            )
+            os.makedirs(destination_file_path)
+            new_current_folder_path = self.__current_item_folder_path
+        else:
+            destination_file_path = os.path.join(
                 self.__current_folder_path,
                 new_file_name
             )
+            new_current_folder_path = self.__current_folder_path
+
+        # Import the new file
+        FileHelper.copy_file(
+            source_file_path=self.__source_file_path,
+            destination_file_path=destination_file_path
         )
 
         # Reinitialize listbox
         self.__reinit_listbox(
-            folder_path=self.__current_folder_path
+            folder_path=new_current_folder_path
         )
 
     def __import_folder(self):
@@ -769,6 +794,16 @@ class ConfigsFilesEditorDialog:
         if not self.__source_folder_path:
             return
 
+        # Ask if keep absolute path
+        self.__keep_absolute_path = messagebox.askyesno(
+            Context.get_text('question'),
+            Context.get_text(
+                'question_keep_absolute_path',
+                path=self.__source_folder_path
+            ),
+            parent=self.__dialog
+        )
+
         # Execute the import in a waiting dialog
         WaitingDialog(
             parent=self.__dialog,
@@ -779,23 +814,35 @@ class ConfigsFilesEditorDialog:
     def __run_import_folder(self, should_interrupt):
         """Run import folder"""
 
-        # Retrieve new folder path's name
+        # Retrieve new folder's name
         new_folder_name = os.path.basename(
             self.__source_folder_path
         )
 
-        # Import the new folder
-        FileHelper.copy_folder(
-            source_folder_path=self.__source_folder_path,
-            destination_folder_path=os.path.join(
+        # Keep or not the absolute path
+        if self.__keep_absolute_path:
+            full_path = Path(self.__source_folder_path)
+            destination_folder_path = os.path.join(
+                self.__current_item_folder_path,
+                full_path.relative_to(full_path.drive + '\\')
+            )
+            new_current_folder_path = self.__current_item_folder_path
+        else:
+            destination_folder_path = os.path.join(
                 self.__current_folder_path,
                 new_folder_name
             )
+            new_current_folder_path = self.__current_folder_path
+
+        # Import the new folder
+        FileHelper.copy_folder(
+            source_folder_path=self.__source_folder_path,
+            destination_folder_path=destination_folder_path
         )
 
         # Reinitialize listbox
         self.__reinit_listbox(
-            folder_path=self.__current_folder_path
+            folder_path=new_current_folder_path
         )
 
     def __export_file(self):

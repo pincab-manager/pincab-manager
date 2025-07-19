@@ -6,6 +6,7 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import simpledialog
 
+from dialogs.selector.registry_key_selector_dialog import RegistryKeySelectorDialog
 from dialogs.waiting.waiting_dialog import WaitingDialog
 from libraries.constants.constants import Component, Constants
 from libraries.context.context import Context
@@ -13,6 +14,7 @@ from libraries.file.file_helper import FileHelper
 from libraries.ui.ui_helper import UIHelper
 from libraries.ui.ui_table import UITable
 from libraries.verifier.verifier import Verifier
+from libraries.winreg.winreg_helper import WinRegHelper
 
 # pylint: disable=too-many-arguments
 # pylint: disable=too-many-positional-arguments
@@ -39,12 +41,13 @@ class ConfigsRegistryEditorDialog:
         self.__callback = callback
         self.__table = None
         self.__current_item_id = None
+        self.__current_item_folder_path = None
 
         # Create dialog
         self.__dialog = tk.Toplevel(parent)
 
         # Fix dialog's title
-        self.__dialog.title(Context.get_text('edit_configs'))
+        self.__dialog.title(Context.get_text('edit_configs_registry'))
 
         # Fix dialog's size and position
         UIHelper.center_dialog(
@@ -81,7 +84,7 @@ class ConfigsRegistryEditorDialog:
         self.__create_info_components()
         self.__create_close_components()
 
-        # Bind closing event to stop all media
+        # Bind closing event
         self.__dialog.protocol("WM_DELETE_WINDOW", self.__on_close)
 
         # Select the first row
@@ -195,6 +198,35 @@ class ConfigsRegistryEditorDialog:
             fill=tk.Y
         )
 
+        # Add a label to display the regedit files
+        self.__sub_folder_label = tk.Label(
+            info_frame,
+            text=Context.get_text(
+                'info_regedit_files'
+            ),
+            anchor=tk.W
+        )
+        self.__sub_folder_label.pack(
+            fill=tk.X,
+            padx=Constants.UI_PAD_BIG
+        )
+
+        # Add a listbox to display files
+        self.__listbox = tk.Listbox(
+            info_frame,
+            selectmode=tk.SINGLE,
+            width=80,
+            height=20
+        )
+        self.__listbox.pack(
+            fill=tk.BOTH,
+            padx=Constants.UI_PAD_BIG,
+            pady=Constants.UI_PAD_BIG
+        )
+
+        # Bind clicks
+        self.__listbox.bind("<Button-3>", self.__show_context_menu)
+
     def __create_close_components(self):
         """Create close components"""
 
@@ -207,6 +239,101 @@ class ConfigsRegistryEditorDialog:
         button_close.pack(
             side=tk.TOP
         )
+
+    def __get_selected_item_name(self):
+        """Get selected item's name"""
+
+        # Retrieved list's selection
+        list_selection = self.__listbox.curselection()
+
+        if not list_selection:
+            return None
+
+        selected_item = self.__listbox.get(list_selection[0])
+
+        # Remove the icon
+        item_name = selected_item.strip('📁 📄')
+
+        return item_name
+
+    def __get_selected_item_path(self):
+        """Get selected item's path"""
+
+        # Retrieved selected item's name
+        selected_item_name = self.__get_selected_item_name()
+        if selected_item_name is None:
+            return self.__current_item_folder_path
+
+        return os.path.join(
+            self.__current_item_folder_path,
+            selected_item_name
+        )
+
+    def __add_context_menu_command(
+        self,
+        context_menu: tk.Menu,
+        label: str,
+        command: any,
+        add_separor_if_needed=False
+    ):
+        """Add a command in a Context Menu with an updated counter for commands"""
+
+        if add_separor_if_needed and self.__context_menu_commands_count > 0:
+            context_menu.add_separator()
+
+        context_menu.add_command(label=label, command=command)
+        self.__context_menu_commands_count += 1
+
+    def __show_context_menu(self, event):
+        """Called when right click on an item to show context menu"""
+
+        self.__context_menu_commands_count = 0
+
+        # Select nearest item
+        item_idx = self.__listbox.nearest(event.y)
+        self.__listbox.selection_clear(0, tk.END)
+        self.__listbox.selection_set(item_idx)
+
+        # Retrieved selected item's path
+        selected_item_path = self.__get_selected_item_path()
+
+        # Build context menu
+        context_menu = tk.Menu(self.__dialog, tearoff=0)
+
+        self.__add_context_menu_command(
+            context_menu=context_menu,
+            label=Context.get_text(
+                'target_action_explore',
+                target=Context.get_text('target_folder')
+            ),
+            command=self.__explore_folder
+        )
+
+        self.__add_context_menu_command(
+            context_menu=context_menu,
+            label=Context.get_text(
+                'target_action_import',
+                target=Context.get_text('target_regedit_key')
+            ),
+            command=self.__import_regedit_key_step1,
+            add_separor_if_needed=True
+        )
+
+        # If selected path is a file
+        if FileHelper.is_file_exists(
+            file_path=selected_item_path
+        ):
+            self.__add_context_menu_command(
+                context_menu=context_menu,
+                label=Context.get_text(
+                    'target_action_delete',
+                    target=Context.get_text('target_file')
+                ),
+                command=self.__delete_file
+            )
+
+        # Show context menu in the mouse's position
+        context_menu.post(event.x_root, event.y_root)
 
     def __run_create_config(self, should_interrupt):
         """Run create a new config"""
@@ -342,6 +469,16 @@ class ConfigsRegistryEditorDialog:
         # Store selected current item's id
         self.__current_item_id = selected_rows[0][Constants.UI_TABLE_KEY_COL_ID]
 
+        # Set current folder
+        self.__current_item_folder_path = os.path.join(
+            Context.get_configs_path(),
+            self.__current_item_id,
+            Component.REGISTRY.name.lower()
+        )
+
+        # Reinitialize listbox
+        self.__reinit_listbox()
+
     def __on_close(self):
         """Called when closing"""
 
@@ -350,3 +487,103 @@ class ConfigsRegistryEditorDialog:
 
         # Close the dialog
         UIHelper.close_dialog(self.__dialog)
+
+    def __explore_folder(self):
+        """Explore a folder in Windows Explorer"""
+
+        FileHelper.explore_folder(
+            folder_path=self.__current_item_folder_path
+        )
+
+    def __import_regedit_key_step1(self):
+        """Import a regedit's key step 1"""
+
+        RegistryKeySelectorDialog(
+            self.__dialog,
+            callback=self.__import_regedit_key_step2
+        )
+
+    def __import_regedit_key_step2(self, selected_key: str):
+        """Import a regedit's key step 2"""
+
+        if selected_key is None:
+            return
+
+        # Extract user key in a file
+        WinRegHelper.extract_user_key(
+            extracted_file_path=os.path.join(
+                self.__get_selected_item_path(),
+                f'test{Constants.REGEDIT_EXTENSION}'
+            ),
+            key=selected_key
+        )
+
+        # Reinitialize listbox
+        self.__reinit_listbox()
+
+    def __delete_file(self):
+        """Delete a file"""
+
+        if messagebox.askokcancel(
+            Context.get_text('confirmation'),
+            Context.get_text('confirm_delete_file'),
+            parent=self.__dialog
+        ):
+
+            # Execute the delete in a waiting dialog
+            WaitingDialog(
+                parent=self.__dialog,
+                process_name=Context.get_text('process_deletion'),
+                process_function=self.__run_delete_file
+            )
+
+    def __run_delete_file(self, should_interrupt):
+        """Run delete file"""
+
+        # Delete the current file
+        FileHelper.delete_file(
+            file_path=self.__get_selected_item_path()
+        )
+
+        # Reinitialize listbox
+        self.__reinit_listbox()
+
+    def __reinit_listbox(
+        self
+    ):
+        """Reinitialize listbox"""
+
+        # Remove selection
+        self.__listbox.selection_clear(0, tk.END)
+
+        # Reinitialize the listbox
+        self.__listbox.delete(0, tk.END)
+        self.__listbox.selection_clear(0, tk.END)
+
+        if FileHelper.is_folder_exists(
+            folder_path=self.__current_item_folder_path
+        ):
+            # Show files then folders
+            items = FileHelper.list_sub_directories(
+                folder_path=self.__current_item_folder_path
+            )
+            files = []
+            folders = []
+
+            for item in items:
+                item_path = os.path.join(self.__current_item_folder_path, item)
+                if os.path.isdir(item_path):
+                    folders.append(item)
+                else:
+                    files.append(item)
+
+            for file in files:
+                self.__listbox.insert(
+                    tk.END,
+                    f"📄 {file}"
+                )
+            for folder in folders:
+                self.__listbox.insert(
+                    tk.END,
+                    f"📁 {folder}"
+                )

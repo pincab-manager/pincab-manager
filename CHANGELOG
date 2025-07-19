@@ -1,3 +1,6 @@
+R0.10.0 - 07/18/2025
+- feat(edit_regedit): Edit regedit
+
 R0.9.3 - 07/17/2025
 - fix(selenium): Load selenium web browser only when verifying table's version
 

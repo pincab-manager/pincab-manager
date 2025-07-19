@@ -138,7 +138,7 @@ class UIMedia(tk.LabelFrame):
         self.__media_frame.update_idletasks()
         self.__media_player.set_hwnd(self.__media_frame.winfo_id())
 
-        # Bind to show context menu
+        # Bind clicks
         self.bind("<Button-3>", self.__show_context_menu)
         self.__audio_icon_label.bind("<Button-3>", self.__show_context_menu)
         self.__photo_video_icon_label.bind(

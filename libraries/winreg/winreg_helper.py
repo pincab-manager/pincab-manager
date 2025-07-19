@@ -4,6 +4,7 @@
 import os
 import winreg
 import subprocess
+from libraries.constants.constants import Constants
 from libraries.context.context import Context
 from libraries.file.file_helper import FileHelper
 from libraries.logging.logging_helper import LoggingHelper
@@ -69,11 +70,11 @@ class WinRegHelper:
             while True:
                 try:
                     if len(export_content) == 0:
-                        # Header for .reg
+                        # Header for reg
                         export_content += "Windows Registry Editor Version 5.00\n\n"
 
                         # Add key
-                        export_content += f"[HKEY_CURRENT_USER\\{key}]\n"
+                        export_content += f"[{Constants.REGEDIT_ROOT_KEY_NAME}\\{key}]\n"
 
                     name, value, value_type = winreg.EnumValue(registry_key, i)
                     export_content += WinRegHelper.__convert_value_to_reg_format(
@@ -194,3 +195,23 @@ class WinRegHelper:
                 exc=exc
             )
             return
+
+    @staticmethod
+    def get_user_keys_tree(path="") -> dict:
+        """Get all users keys in a tree"""
+        tree = {}
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, path) as key:
+            # Retrieve sub keys
+            i = 0
+            while True:
+                try:
+                    subkey_name = winreg.EnumKey(key, i)
+                    full_path = f"{path}\\{subkey_name}" if path else subkey_name
+                    tree[subkey_name] = WinRegHelper.get_user_keys_tree(
+                        full_path
+                    )
+                    i += 1
+                except Exception:
+                    break  # No more key
+
+        return tree

@@ -1035,7 +1035,7 @@ class Verifier:
                 csv_table_id,
                 csv_table_version,
                 'config',
-                'user_values.reg'
+                f'user_values{Constants.REGEDIT_EXTENSION}'
             )
             if not FileHelper.is_file_exists(
                 file_path=file_path
@@ -1085,7 +1085,7 @@ class Verifier:
                 bdd_table_id,
                 bdd_table_version,
                 'config',
-                'user_values.reg'
+                f'user_values{Constants.REGEDIT_EXTENSION}'
             )
             if not FileHelper.is_file_exists(
                 file_path=file_path
@@ -1128,7 +1128,7 @@ class Verifier:
                 bdd_table_id,
                 bdd_table_version,
                 'config',
-                'user_values.reg'
+                f'user_values{Constants.REGEDIT_EXTENSION}'
             )
             if not FileHelper.is_file_exists(
                 file_path=file_path

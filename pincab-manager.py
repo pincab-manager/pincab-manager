@@ -321,7 +321,7 @@ class ApplicationWindow:
                     )
 
                 case Component.REGISTRY:
-                    # If component FILES
+                    # If component REGISTRY
                     ConfigsRegistryEditorDialog(
                         self.__window,
                         callback=self.__update_data

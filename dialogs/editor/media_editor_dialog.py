@@ -79,7 +79,7 @@ class MediaEditorDialog:
         self.__create_media_components()
         self.__create_close_components()
 
-        # Bind closing event to stop all media
+        # Bind closing event
         self.__dialog.protocol("WM_DELETE_WINDOW", self.__on_close)
 
         # Select the first mode

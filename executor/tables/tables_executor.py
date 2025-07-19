@@ -107,7 +107,7 @@ class TablesExecutor(AbstractExecutor):
                 table_id,
                 table_version,
                 'config',
-                'user_values.reg'
+                f'user_values{Constants.REGEDIT_EXTENSION}'
             ))
 
         return None
@@ -892,7 +892,7 @@ class TablesExecutor(AbstractExecutor):
                 self.get_copy_folder_path(),
                 table_id,
                 'config',
-                'user_values.reg'
+                f'user_values{Constants.REGEDIT_EXTENSION}'
             )
             FileHelper.copy_file(
                 source_file_path=reg_file_path,

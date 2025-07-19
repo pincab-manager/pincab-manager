@@ -101,7 +101,7 @@ class TablesEditorDialog:
         self.__create_info_components()
         self.__create_close_components()
 
-        # Bind closing event to stop all media
+        # Bind closing event
         self.__dialog.protocol("WM_DELETE_WINDOW", self.__on_close)
 
         # Select the first row
@@ -342,7 +342,7 @@ class TablesEditorDialog:
             pady=Constants.UI_PAD_BIG
         )
 
-        # Bind to show context menu
+        # Bind clicks
         self.__listbox.bind("<Button-3>", self.__show_context_menu)
         self.__listbox.bind("<Double-1>", self.__on_double_click)
 
@@ -2073,7 +2073,7 @@ class TablesEditorDialog:
             return
 
         # Ask if table's name keeping
-        self.__table_name_keeping = messagebox.askyesno(
+        self.__keep_table_name = messagebox.askyesno(
             Context.get_text('question'),
             Context.get_text('question_rename_file_with_table_name'),
             parent=self.__dialog
@@ -2090,7 +2090,7 @@ class TablesEditorDialog:
         """Run import file"""
 
         # Retrieve new file path's name
-        if self.__table_name_keeping:
+        if self.__keep_table_name:
 
             # Retrieve file's extension
             _, file_extension = os.path.splitext(

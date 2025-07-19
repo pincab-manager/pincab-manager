@@ -191,3 +191,8 @@ class Constants:
     PINUP_VIDEOS_BATCH_EXTENSIONS = {
         '.bat'
     }
+
+    # Regedit constants
+    REGEDIT_ROOT_KEY_NAME = 'HKEY_CURRENT_USER'
+    REGEDIT_KEY_SEPARATOR = '\\'
+    REGEDIT_EXTENSION = '.reg'
