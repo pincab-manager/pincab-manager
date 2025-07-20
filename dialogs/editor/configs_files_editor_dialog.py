@@ -156,7 +156,8 @@ class ConfigsFilesEditorDialog:
             row = {
                 Constants.UI_TABLE_KEY_COL_SELECTION: False,
                 Constants.UI_TABLE_KEY_COL_ID: selected_row[Constants.UI_TABLE_KEY_COL_ID],
-                Constants.UI_TABLE_KEY_COL_NAME: selected_row[Constants.UI_TABLE_KEY_COL_NAME]
+                Constants.UI_TABLE_KEY_COL_NAME: selected_row[Constants.UI_TABLE_KEY_COL_NAME],
+                Component.FILES.value: selected_row[Component.FILES.value]
             }
 
             # Retrieve color
@@ -537,7 +538,8 @@ class ConfigsFilesEditorDialog:
         row = {
             Constants.UI_TABLE_KEY_COL_SELECTION: False,
             Constants.UI_TABLE_KEY_COL_ID: self.new_config,
-            Constants.UI_TABLE_KEY_COL_NAME: self.new_config
+            Constants.UI_TABLE_KEY_COL_NAME: self.new_config,
+            Component.FILES.value: True
         }
         row[Constants.UI_TABLE_KEY_COLOR] = Verifier.retrieve_verified_row_color(
             row=row
@@ -708,6 +710,19 @@ class ConfigsFilesEditorDialog:
             )
         )
 
+        # Change rows
+        row_idx = 0
+        selected_rows = self.__table.get_selected_rows()
+        rows = self.__table.list_rows()
+        for row in rows:
+            if row in selected_rows:
+                row[Component.FILES.value] = True
+                break
+            row_idx += 1
+        self.__table.set_rows(
+            rows=rows
+        )
+
         # Reinitialize listbox
         self.__reinit_listbox(
             folder_path=self.__current_folder_path
@@ -778,6 +793,19 @@ class ConfigsFilesEditorDialog:
             destination_file_path=destination_file_path
         )
 
+        # Change rows
+        row_idx = 0
+        selected_rows = self.__table.get_selected_rows()
+        rows = self.__table.list_rows()
+        for row in rows:
+            if row in selected_rows:
+                row[Component.FILES.value] = True
+                break
+            row_idx += 1
+        self.__table.set_rows(
+            rows=rows
+        )
+
         # Reinitialize listbox
         self.__reinit_listbox(
             folder_path=new_current_folder_path
@@ -838,6 +866,19 @@ class ConfigsFilesEditorDialog:
         FileHelper.copy_folder(
             source_folder_path=self.__source_folder_path,
             destination_folder_path=destination_folder_path
+        )
+
+        # Change rows
+        row_idx = 0
+        selected_rows = self.__table.get_selected_rows()
+        rows = self.__table.list_rows()
+        for row in rows:
+            if row in selected_rows:
+                row[Component.FILES.value] = True
+                break
+            row_idx += 1
+        self.__table.set_rows(
+            rows=rows
         )
 
         # Reinitialize listbox

@@ -42,7 +42,7 @@ class Context:
     __selected_configs_rows = []
     __selected_folder_path = None
     __simulated: bool = False
-    __auto_refresh: bool = False
+    __auto_refresh: bool = True
     __available_emulators = []
     __available_media = []
     __screen_number_by_media = {}
@@ -106,7 +106,7 @@ class Context:
         Context.__simulated = False
 
         # Initialize boolean auto refresh
-        Context.__auto_refresh = False
+        Context.__auto_refresh = True
 
         # Specify that context is initialized
         Context.__initialized = True

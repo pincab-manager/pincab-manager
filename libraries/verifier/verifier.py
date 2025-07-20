@@ -9,7 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 from libraries.bdd.bdd_helper import BddHelper
-from libraries.constants.constants import Constants, Emulator
+from libraries.constants.constants import Constants, Emulator, Component
 from libraries.context.context import Context
 from libraries.file.file_helper import FileHelper
 from libraries.logging.logging_helper import LoggingHelper
@@ -1035,19 +1035,23 @@ class Verifier:
                 csv_table_id,
                 csv_table_version,
                 'config',
-                f'user_values{Constants.REGEDIT_EXTENSION}'
+                f'user_values{Constants.REGEDIT_FILE_EXTENSION}'
             )
             if not FileHelper.is_file_exists(
                 file_path=file_path
             ):
-                return True
+                return None
 
             key = Constants.VPINMAME_REG_KEY
             key += '\\'
             key += csv_table_rom
-            return WinRegHelper.is_user_key_exists(
+            if WinRegHelper.is_user_key_exists(
                 key=key
-            )
+            ):
+                if WinRegHelper.is_reg_file_equal_to_registry(
+                    file_path=file_path
+                ):
+                    return True
 
         return False
 
@@ -1076,7 +1080,7 @@ class Verifier:
             if not WinRegHelper.is_user_key_exists(
                 key=key
             ):
-                return True
+                return None
 
             file_path = os.path.join(
                 Context.get_working_path(),
@@ -1085,7 +1089,7 @@ class Verifier:
                 bdd_table_id,
                 bdd_table_version,
                 'config',
-                f'user_values{Constants.REGEDIT_EXTENSION}'
+                f'user_values{Constants.REGEDIT_FILE_EXTENSION}'
             )
             if not FileHelper.is_file_exists(
                 file_path=file_path
@@ -1096,6 +1100,11 @@ class Verifier:
                         file=str(file_path)
                     )
                 )
+                return False
+
+            if not WinRegHelper.is_reg_file_equal_to_registry(
+                file_path=file_path
+            ):
                 return False
 
             return True
@@ -1128,12 +1137,12 @@ class Verifier:
                 bdd_table_id,
                 bdd_table_version,
                 'config',
-                f'user_values{Constants.REGEDIT_EXTENSION}'
+                f'user_values{Constants.REGEDIT_FILE_EXTENSION}'
             )
             if not FileHelper.is_file_exists(
                 file_path=file_path
             ):
-                return True
+                return None
 
             key = Constants.VPINMAME_REG_KEY
             key += '\\'
@@ -1297,3 +1306,307 @@ class Verifier:
             return Constants.ITEM_COLOR_GREEN
 
         return Constants.ITEM_COLOR_RED
+
+    @staticmethod
+    def verify_config_files_install(
+        config: str
+    ):
+        """Verify if config files exist install"""
+
+        config_path = os.path.join(
+            Context.get_configs_path(),
+            config,
+            Component.FILES.name.lower()
+        )
+
+        relative_pathes = FileHelper.list_relative_paths(
+            folder_path=config_path,
+            file_name='*',
+            error_if_not_found=False
+        )
+
+        if len(relative_pathes) == 0:
+            return None
+
+        for relative_path in relative_pathes:
+            file_path = os.path.join(
+                str(Context.get_pinup_path().drive) + '\\',
+                relative_path
+            )
+            if not FileHelper.is_file_exists(
+                file_path=file_path
+            ):
+                LoggingHelper.log_warning(
+                    message=Context.get_text(
+                        'warning_not_found_file',
+                        file=str(file_path)
+                    )
+                )
+                return False
+
+        return True
+
+    @staticmethod
+    def verify_config_files_export(
+        config: str
+    ):
+        """Verify if config files exist export"""
+
+        config_path = os.path.join(
+            Context.get_configs_path(),
+            config,
+            Component.FILES.name.lower()
+        )
+
+        relative_pathes = FileHelper.list_relative_paths(
+            folder_path=config_path,
+            file_name='*',
+            error_if_not_found=False
+        )
+
+        if len(relative_pathes) == 0:
+            return None
+
+        for relative_path in relative_pathes:
+            file1_path = os.path.join(
+                config_path,
+                relative_path
+            )
+
+            file2_path = os.path.join(
+                str(Context.get_pinup_path().drive) + '\\',
+                relative_path
+            )
+
+            if not FileHelper.is_file_exists(
+                file_path=file1_path
+            ):
+                LoggingHelper.log_warning(
+                    message=Context.get_text(
+                        'warning_not_found_file',
+                        file=str(file1_path)
+                    )
+                )
+                return False
+
+            if not FileHelper.compare_files(
+                file1_path=file1_path,
+                file2_path=file2_path
+            ):
+                LoggingHelper.log_warning(
+                    message=Context.get_text(
+                        'warning_differents_files',
+                        file1=str(file1_path),
+                        file2=str(file2_path)
+                    )
+                )
+                return False
+
+        return True
+
+    @staticmethod
+    def verify_config_files_uninstall(
+        config: str
+    ):
+        """Verify if config files exist uninstall"""
+
+        config_path = os.path.join(
+            Context.get_configs_path(),
+            config,
+            Component.FILES.name.lower()
+        )
+
+        relative_pathes = FileHelper.list_relative_paths(
+            folder_path=config_path,
+            file_name='*',
+            error_if_not_found=False
+        )
+
+        if len(relative_pathes) == 0:
+            return None
+
+        for relative_path in relative_pathes:
+            file_path = os.path.join(
+                str(Context.get_pinup_path().drive) + '\\',
+                relative_path
+            )
+            if FileHelper.is_file_exists(
+                file_path=file_path
+            ):
+                return False
+
+        return True
+
+    @staticmethod
+    def verify_config_files_edit(
+        config: str
+    ):
+        """Verify if config files exist edit"""
+
+        config_path = os.path.join(
+            Context.get_configs_path(),
+            config,
+            Component.FILES.name.lower()
+        )
+
+        relative_pathes = FileHelper.list_relative_paths(
+            folder_path=config_path,
+            file_name='*',
+            error_if_not_found=False
+        )
+
+        if len(relative_pathes) == 0:
+            return None
+
+        return True
+
+    @staticmethod
+    def verify_config_registry_install(
+        config: str
+    ):
+        """Verify if config registry exist install"""
+
+        config_path = os.path.join(
+            Context.get_configs_path(),
+            config,
+            Component.REGISTRY.name.lower()
+        )
+
+        relative_pathes = FileHelper.list_relative_paths(
+            folder_path=config_path,
+            file_name='*',
+            error_if_not_found=False
+        )
+
+        if len(relative_pathes) == 0:
+            return None
+
+        for relative_path in relative_pathes:
+            regedit_file_path = os.path.join(
+                config_path,
+                relative_path
+            )
+
+            for key in WinRegHelper.extract_regedit_keys(
+                file_path=regedit_file_path
+            ):
+                if not key.startswith(Constants.REGEDIT_ROOT_KEY_NAME):
+                    continue
+
+                if not WinRegHelper.is_user_key_exists(
+                    key=key[len(Constants.REGEDIT_ROOT_KEY_NAME) + 1:]
+                ):
+                    return False
+
+                if not WinRegHelper.is_reg_file_equal_to_registry(
+                    file_path=regedit_file_path
+                ):
+                    return False
+
+        return True
+
+    @staticmethod
+    def verify_config_registry_export(
+        config: str
+    ):
+        """Verify if config registry exist export"""
+
+        config_path = os.path.join(
+            Context.get_configs_path(),
+            config,
+            Component.REGISTRY.name.lower()
+        )
+
+        relative_pathes = FileHelper.list_relative_paths(
+            folder_path=config_path,
+            file_name='*',
+            error_if_not_found=False
+        )
+
+        if len(relative_pathes) == 0:
+            return None
+
+        for relative_path in relative_pathes:
+            regedit_file_path = os.path.join(
+                config_path,
+                relative_path
+            )
+
+            for key in WinRegHelper.extract_regedit_keys(
+                file_path=regedit_file_path
+            ):
+                if not key.startswith(Constants.REGEDIT_ROOT_KEY_NAME):
+                    continue
+
+                if not WinRegHelper.is_user_key_exists(
+                    key=key[len(Constants.REGEDIT_ROOT_KEY_NAME) + 1:]
+                ):
+                    continue
+
+                if not WinRegHelper.is_reg_file_equal_to_registry(
+                    file_path=regedit_file_path
+                ):
+                    return False
+
+        return True
+
+    @staticmethod
+    def verify_config_registry_uninstall(
+        config: str
+    ):
+        """Verify if config registry exist uninstall"""
+
+        config_path = os.path.join(
+            Context.get_configs_path(),
+            config,
+            Component.REGISTRY.name.lower()
+        )
+
+        relative_pathes = FileHelper.list_relative_paths(
+            folder_path=config_path,
+            file_name='*',
+            error_if_not_found=False
+        )
+
+        if len(relative_pathes) == 0:
+            return None
+
+        for relative_path in relative_pathes:
+            for key in WinRegHelper.extract_regedit_keys(
+                file_path=os.path.join(
+                    config_path,
+                    relative_path
+                )
+            ):
+                if not key.startswith(Constants.REGEDIT_ROOT_KEY_NAME):
+                    continue
+
+                if WinRegHelper.is_user_key_exists(
+                    key=key[len(Constants.REGEDIT_ROOT_KEY_NAME) + 1:]
+                ):
+                    return False
+
+        return True
+
+    @staticmethod
+    def verify_config_registry_edit(
+        config: str
+    ):
+        """Verify if config registry exist edit"""
+
+        config_path = os.path.join(
+            Context.get_configs_path(),
+            config,
+            Component.REGISTRY.name.lower()
+        )
+
+        relative_pathes = FileHelper.list_relative_paths(
+            folder_path=config_path,
+            file_name='*',
+            error_if_not_found=False
+        )
+
+        if len(relative_pathes) == 0:
+            return None
+
+        return True
