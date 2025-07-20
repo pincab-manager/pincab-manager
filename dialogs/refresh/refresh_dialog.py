@@ -1099,13 +1099,39 @@ class RefreshDialog:
                     row[Constants.UI_TABLE_KEY_COL_SELECTION] = False
                     row[Constants.UI_TABLE_KEY_COL_ID] = config
                     row[Constants.UI_TABLE_KEY_COL_NAME] = config
-                    row[Component.FILES.value] = True
-                    row[Component.REGISTRY.value] = True
 
-                    # Retrieve color
-                    row[Constants.UI_TABLE_KEY_COLOR] = Verifier.retrieve_verified_row_color(
-                        row=row
-                    )
+                    match(Context.get_selected_action()):
+                        case Action.INSTALL:
+                            row[Component.FILES.value] = Verifier.verify_config_files_install(
+                                config=config
+                            )
+                            row[Component.REGISTRY.value] = Verifier.verify_config_registry_install(
+                                config=config
+                            )
+
+                        case Action.UNINSTALL:
+                            row[Component.FILES.value] = Verifier.verify_config_files_uninstall(
+                                config=config
+                            )
+                            row[Component.REGISTRY.value] = Verifier.verify_config_registry_uninstall(
+                                config=config
+                            )
+
+                        case Action.EXPORT:
+                            row[Component.FILES.value] = Verifier.verify_config_files_export(
+                                config=config
+                            )
+                            row[Component.REGISTRY.value] = Verifier.verify_config_registry_export(
+                                config=config
+                            )
+
+                        case Action.EDIT:
+                            row[Component.FILES.value] = Verifier.verify_config_files_edit(
+                                config=config
+                            )
+                            row[Component.REGISTRY.value] = Verifier.verify_config_registry_edit(
+                                config=config
+                            )
 
                     # Retrieve color
                     row[Constants.UI_TABLE_KEY_COLOR] = Verifier.retrieve_verified_row_color(

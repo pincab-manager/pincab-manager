@@ -154,7 +154,8 @@ class ConfigsRegistryEditorDialog:
             row = {
                 Constants.UI_TABLE_KEY_COL_SELECTION: False,
                 Constants.UI_TABLE_KEY_COL_ID: selected_row[Constants.UI_TABLE_KEY_COL_ID],
-                Constants.UI_TABLE_KEY_COL_NAME: selected_row[Constants.UI_TABLE_KEY_COL_NAME]
+                Constants.UI_TABLE_KEY_COL_NAME: selected_row[Constants.UI_TABLE_KEY_COL_NAME],
+                Component.REGISTRY.value: selected_row[Component.REGISTRY.value]
             }
 
             # Retrieve color
@@ -326,6 +327,15 @@ class ConfigsRegistryEditorDialog:
             self.__add_context_menu_command(
                 context_menu=context_menu,
                 label=Context.get_text(
+                    'target_action_rename',
+                    target=Context.get_text('target_file')
+                ),
+                command=self.__rename_file
+            )
+
+            self.__add_context_menu_command(
+                context_menu=context_menu,
+                label=Context.get_text(
                     'target_action_delete',
                     target=Context.get_text('target_file')
                 ),
@@ -350,7 +360,8 @@ class ConfigsRegistryEditorDialog:
         row = {
             Constants.UI_TABLE_KEY_COL_SELECTION: False,
             Constants.UI_TABLE_KEY_COL_ID: self.new_config,
-            Constants.UI_TABLE_KEY_COL_NAME: self.new_config
+            Constants.UI_TABLE_KEY_COL_NAME: self.new_config,
+            Component.REGISTRY.value: True
         }
         row[Constants.UI_TABLE_KEY_COLOR] = Verifier.retrieve_verified_row_color(
             row=row
@@ -513,9 +524,59 @@ class ConfigsRegistryEditorDialog:
         WinRegHelper.extract_user_key(
             extracted_file_path=os.path.join(
                 self.__get_selected_item_path(),
-                f'test{Constants.REGEDIT_EXTENSION}'
+                f'{selected_key.split(
+                    Constants.REGEDIT_KEY_SEPARATOR
+                )[-1]}{Constants.REGEDIT_FILE_EXTENSION}'
             ),
             key=selected_key
+        )
+
+        # Change rows
+        row_idx = 0
+        selected_rows = self.__table.get_selected_rows()
+        rows = self.__table.list_rows()
+        for row in rows:
+            if row in selected_rows:
+                row[Component.REGISTRY.value] = True
+                break
+            row_idx += 1
+        self.__table.set_rows(
+            rows=rows
+        )
+
+        # Reinitialize listbox
+        self.__reinit_listbox()
+
+    def __rename_file(self):
+        """Rename a file"""
+
+        # Ask an entry for the new name
+        self.new_name = simpledialog.askstring(
+            Context.get_text('confirmation'),
+            Context.get_text('confirm_rename'),
+            parent=self.__dialog
+        )
+
+        if self.new_name is None:
+            return
+
+        # Execute the rename in a waiting dialog
+        WaitingDialog(
+            parent=self.__dialog,
+            process_name=Context.get_text('process_renaming'),
+            process_function=self.__run_rename_file
+        )
+
+    def __run_rename_file(self, should_interrupt):
+        """Run rename file"""
+
+        # Rename the file
+        FileHelper.move_file(
+            source_file_path=self.__get_selected_item_path(),
+            destination_file_path=os.path.join(
+                self.__current_item_folder_path,
+                self.new_name
+            )
         )
 
         # Reinitialize listbox

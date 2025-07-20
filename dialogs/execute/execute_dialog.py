@@ -9,6 +9,7 @@ from tkinter import ttk
 from executor.bdd_tables.bdd_tables_executor import BDDTablesExecutor
 from executor.playlists.playlists_executor import PlaylistsExecutor
 from executor.tables.tables_executor import TablesExecutor
+from executor.configs.configs_executor import ConfigsExecutor
 from libraries.constants.constants import Category, Constants
 from libraries.context.context import Context
 from libraries.logging.logging_helper import LoggingHelper
@@ -135,12 +136,11 @@ class ExecuteDialog:
                 )
 
             case Category.CONFIGS:
-                print('To implement')
-                # self.__executor = OldConfigsExecutor(
-                #     progress_bar=progress_bar,
-                #     progress_label=self.progress_label,
-                #     button_close=button_close
-                # )
+                self.__executor = ConfigsExecutor(
+                    progress_bar=progress_bar,
+                    progress_label=self.progress_label,
+                    button_close=button_close
+                )
 
         # Execute in a thread
         self.execution_thread = threading.Thread(

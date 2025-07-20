@@ -369,7 +369,8 @@ class FileHelper:
 
     @staticmethod
     def read_file(
-        file_path: str
+        file_path: str,
+        encoding='UTF-8'
     ) -> str:
         """Read a file"""
         if not FileHelper.is_file_exists(
@@ -380,14 +381,15 @@ class FileHelper:
         with open(
             file_path,
             mode='r',
-            encoding='UTF-8'
+            encoding=encoding
         ) as file:
             return file.read()
 
     @staticmethod
     def write_file(
         file_path: str,
-        content: str
+        content: str,
+        encoding='UTF-8'
     ):
         """Write content in a file"""
 
@@ -411,7 +413,7 @@ class FileHelper:
             file_path,
             mode='w',
             newline='\n',
-            encoding='UTF-8'
+            encoding=encoding
         ) as file:
             file.write(content)
 
