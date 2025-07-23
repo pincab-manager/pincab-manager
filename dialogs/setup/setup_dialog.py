@@ -28,12 +28,10 @@ class SetupDialog:
 
         self.__callback = callback
         self.__loaded = False
+        self.__lang_code = Context.get_lang_code()
 
         # Create dialog
         self.dialog = tk.Toplevel(parent)
-
-        # Fix dialog's title
-        self.dialog.title(Context.get_text('setup'))
 
         # Fix dialog's size and position
         UIHelper.center_dialog(
@@ -81,10 +79,13 @@ class SetupDialog:
         self.__create_media_components()
         self.__create_buttons_components()
 
+        # Update texts in UI Components
+        self.__update_ui_components_texts()
+
         self.__loaded = True
 
         # Update screen about entry changed
-        self.__on_entry_changed()
+        self.__on_entry_changed(None)
 
     def __browse_folder(
         self,
@@ -105,9 +106,6 @@ class SetupDialog:
         """Validate"""
 
         # Retrieve general setup
-        lang_code = 'en'
-        if self.combo_lang.get() == Context.get_text('lang_fr'):
-            lang_code = 'fr'
         pinup_path = self.entry_pinup_path.get()
         simulated = self.simulation_boolean_var.get()
         auto_refresh = self.auto_refresh_boolean_var.get()
@@ -179,7 +177,7 @@ class SetupDialog:
         # Save setup in a cfg file
         setup = configparser.ConfigParser()
         setup['DEFAULT'] = {
-            Constants.SETUP_LANG_CODE: lang_code,
+            Constants.SETUP_LANG_CODE: self.__lang_code,
             Constants.SETUP_PINUP_PATH: pinup_path,
             Constants.SETUP_MONITOR: monitor,
             Constants.SETUP_SIMULATED: simulated,
@@ -226,11 +224,24 @@ class SetupDialog:
         # Close the dialog without saving
         UIHelper.close_dialog(self.dialog)
 
-    def __on_entry_changed(self, *_):
+    def __on_entry_changed(self, *args):
         """Called when an entry changed"""
 
         if not self.__loaded:
             return
+
+        # Reload UI Texts if the source is the combo lang
+        try:
+            widget = args[0].widget
+            if widget == self.combo_lang:
+                self.__lang_code = 'en'
+                if self.combo_lang.get() == Context.get_text('lang_fr'):
+                    self.__lang_code = 'fr'
+
+                # Update texts in UI Components
+                self.__update_ui_components_texts()
+        except Exception:
+            pass
 
         # Show/Hide components for VPX's Path
         if self.emulator_vpx_boolean_var.get():
@@ -273,9 +284,7 @@ class SetupDialog:
             )
         else:
             self.media_screen_number_topper_frame.pack_forget()
-            self.media_screen_number_topper_combo.set(
-                Context.get_text('setup_none')
-            )
+            self.media_screen_number_topper_combo.set('N/A')
 
         # Show/Hide components for BACKGLASS's Screen Number
         if self.media_backglass_boolean_var.get():
@@ -285,9 +294,7 @@ class SetupDialog:
             )
         else:
             self.media_screen_number_backglass_frame.pack_forget()
-            self.media_screen_number_backglass_combo.set(
-                Context.get_text('setup_none')
-            )
+            self.media_screen_number_backglass_combo.set('N/A')
 
         # Show/Hide components for FULL_DMD's Screen Number
         if self.media_full_dmd_boolean_var.get():
@@ -297,9 +304,7 @@ class SetupDialog:
             )
         else:
             self.media_screen_number_full_dmd_frame.pack_forget()
-            self.media_screen_number_full_dmd_combo.set(
-                Context.get_text('setup_none')
-            )
+            self.media_screen_number_full_dmd_combo.set('N/A')
 
         # Show/Hide components for PLAYFIELD's Screen Number
         if self.media_playfield_boolean_var.get():
@@ -309,9 +314,7 @@ class SetupDialog:
             )
         else:
             self.media_screen_number_playfield_frame.pack_forget()
-            self.media_screen_number_playfield_combo.set(
-                Context.get_text('setup_none')
-            )
+            self.media_screen_number_playfield_combo.set('N/A')
 
         # Enable/Disable button to validate
         validate_enabled = True
@@ -347,11 +350,10 @@ class SetupDialog:
         """Create general components"""
 
         # Create frame
-        general_frame = tk.LabelFrame(
-            self.top_frame,
-            text=Context.get_text('setup_general')
+        self.general_frame = tk.LabelFrame(
+            self.top_frame
         )
-        general_frame.pack(
+        self.general_frame.pack(
             side=tk.LEFT,
             fill=tk.BOTH,
             expand=True,
@@ -359,29 +361,22 @@ class SetupDialog:
         )
 
         # Create Combobox for language
-        lang_frame = tk.Frame(general_frame)
+        lang_frame = tk.Frame(self.general_frame)
         lang_frame.pack(
             side=tk.TOP,
             fill=tk.X,
             pady=Constants.UI_PAD_SMALL
         )
-        label_lang = tk.Label(
-            lang_frame,
-            text=Context.get_text('lang')
+        self.label_lang = tk.Label(
+            lang_frame
         )
-        label_lang.pack(
+        self.label_lang.pack(
             side=tk.LEFT,
             padx=Constants.UI_PAD_SMALL
         )
         self.combo_lang = ttk.Combobox(
             lang_frame,
-            values=[
-                Context.get_text('lang_fr'),
-                Context.get_text('lang_en')
-            ]
-        )
-        self.combo_lang.set(
-            Context.get_text(f'lang_{Context.get_lang_code()}')
+            values=[]
         )
         self.combo_lang.config(state="readonly")
         self.combo_lang.pack(
@@ -394,20 +389,16 @@ class SetupDialog:
         )
 
         # Create folder PINUP selection
-        pinup_path_frame = tk.Frame(general_frame)
+        pinup_path_frame = tk.Frame(self.general_frame)
         pinup_path_frame.pack(
             side=tk.TOP,
             fill=tk.X,
             pady=Constants.UI_PAD_SMALL
         )
-        label_pinup_path = tk.Label(
-            pinup_path_frame,
-            text=Context.get_text(
-                'input_folder',
-                target='PinUPSystem'
-            )
+        self.label_pinup_path = tk.Label(
+            pinup_path_frame
         )
-        label_pinup_path.pack(
+        self.label_pinup_path.pack(
             side=tk.LEFT,
             padx=Constants.UI_PAD_SMALL
         )
@@ -429,28 +420,26 @@ class SetupDialog:
             side=tk.LEFT,
             padx=Constants.UI_PAD_SMALL
         )
-        button_browse_vpinball = tk.Button(
+        self.button_browse_vpinball = tk.Button(
             pinup_path_frame,
-            text=Context.get_text('browse'),
             command=lambda: self.__browse_folder(self.entry_pinup_path)
         )
-        button_browse_vpinball.pack(
+        self.button_browse_vpinball.pack(
             side=tk.LEFT,
             padx=Constants.UI_PAD_SMALL
         )
 
         # Create Combobox for monitor
-        monitor_frame = tk.Frame(general_frame)
+        monitor_frame = tk.Frame(self.general_frame)
         monitor_frame.pack(
             side=tk.TOP,
             fill=tk.X,
             pady=Constants.UI_PAD_SMALL
         )
-        label_monitor = tk.Label(
-            monitor_frame,
-            text=Context.get_text('monitor')
+        self.label_monitor = tk.Label(
+            monitor_frame
         )
-        label_monitor.pack(
+        self.label_monitor.pack(
             side=tk.LEFT,
             padx=Constants.UI_PAD_SMALL
         )
@@ -472,7 +461,7 @@ class SetupDialog:
         )
 
         # Create simulation checkbox
-        simulation_frame = tk.Frame(general_frame)
+        simulation_frame = tk.Frame(self.general_frame)
         simulation_frame.pack(
             side=tk.TOP,
             fill=tk.X,
@@ -494,20 +483,19 @@ class SetupDialog:
         simulation_checkbox.pack(
             side=tk.LEFT,
         )
-        label_simulation = tk.Label(
-            simulation_frame,
-            text=Context.get_text('simulation')
+        self.label_simulation = tk.Label(
+            simulation_frame
         )
-        label_simulation.pack(
+        self.label_simulation.pack(
             side=tk.LEFT
         )
-        label_simulation.bind(
+        self.label_simulation.bind(
             "<Button-1>",
             lambda e: simulation_checkbox.invoke()
         )
 
         # Create auto refresh checkbox
-        auto_refresh_frame = tk.Frame(general_frame)
+        auto_refresh_frame = tk.Frame(self.general_frame)
         auto_refresh_frame.pack(
             side=tk.TOP,
             fill=tk.X,
@@ -529,14 +517,13 @@ class SetupDialog:
         auto_refresh_checkbox.pack(
             side=tk.LEFT,
         )
-        label_auto_refresh = tk.Label(
-            auto_refresh_frame,
-            text=Context.get_text('auto_refresh')
+        self.label_auto_refresh = tk.Label(
+            auto_refresh_frame
         )
-        label_auto_refresh.pack(
+        self.label_auto_refresh.pack(
             side=tk.LEFT
         )
-        label_auto_refresh.bind(
+        self.label_auto_refresh.bind(
             "<Button-1>",
             lambda e: auto_refresh_checkbox.invoke()
         )
@@ -545,11 +532,10 @@ class SetupDialog:
         """Create emulators components"""
 
         # Create frame
-        emulators_frame = tk.LabelFrame(
-            self.center_frame,
-            text=Context.get_text('setup_emulators')
+        self.emulators_frame = tk.LabelFrame(
+            self.center_frame
         )
-        emulators_frame.pack(
+        self.emulators_frame.pack(
             side=tk.LEFT,
             fill=tk.BOTH,
             expand=True,
@@ -558,7 +544,7 @@ class SetupDialog:
 
         # Create frame for emulator VISUAL_PINBALL_X
         current_emulator = Emulator.VISUAL_PINBALL_X
-        emulator_vpx_frame = tk.Frame(emulators_frame)
+        emulator_vpx_frame = tk.Frame(self.emulators_frame)
         emulator_vpx_frame.pack(
             side=tk.TOP,
             fill=tk.X,
@@ -598,14 +584,10 @@ class SetupDialog:
             side=tk.RIGHT,
             padx=Constants.UI_PAD_SMALL
         )
-        label_emulator_vpx_path = tk.Label(
+        self.label_emulator_vpx_path = tk.Label(
             self.emulator_vpx_path_frame,
-            text=Context.get_text(
-                'input_folder',
-                target='VisualPinball'
-            )
         )
-        label_emulator_vpx_path.pack(
+        self.label_emulator_vpx_path.pack(
             side=tk.LEFT,
             padx=Constants.UI_PAD_SMALL
         )
@@ -627,19 +609,18 @@ class SetupDialog:
             side=tk.LEFT,
             padx=Constants.UI_PAD_SMALL
         )
-        button_browse_emulator_vpx_path = tk.Button(
+        self.button_browse_emulator_vpx_path = tk.Button(
             self.emulator_vpx_path_frame,
-            text=Context.get_text('browse'),
             command=lambda: self.__browse_folder(self.entry_emulator_vpx_path)
         )
-        button_browse_emulator_vpx_path.pack(
+        self.button_browse_emulator_vpx_path.pack(
             side=tk.LEFT,
             padx=Constants.UI_PAD_SMALL
         )
 
         # Create frame for emulator FUTURE_PINBALL
         current_emulator = Emulator.FUTURE_PINBALL
-        emulator_fp_frame = tk.Frame(emulators_frame)
+        emulator_fp_frame = tk.Frame(self.emulators_frame)
         emulator_fp_frame.pack(
             side=tk.TOP,
             fill=tk.X,
@@ -679,14 +660,10 @@ class SetupDialog:
             side=tk.RIGHT,
             padx=Constants.UI_PAD_SMALL
         )
-        label_emulator_fp_path = tk.Label(
-            self.emulator_fp_path_frame,
-            text=Context.get_text(
-                'input_folder',
-                target='FuturePinball'
-            )
+        self.label_emulator_fp_path = tk.Label(
+            self.emulator_fp_path_frame
         )
-        label_emulator_fp_path.pack(
+        self.label_emulator_fp_path.pack(
             side=tk.LEFT,
             padx=Constants.UI_PAD_SMALL
         )
@@ -708,19 +685,18 @@ class SetupDialog:
             side=tk.LEFT,
             padx=Constants.UI_PAD_SMALL
         )
-        button_browse_emulator_fp_path = tk.Button(
+        self.button_browse_emulator_fp_path = tk.Button(
             self.emulator_fp_path_frame,
-            text=Context.get_text('browse'),
             command=lambda: self.__browse_folder(self.entry_emulator_fp_path)
         )
-        button_browse_emulator_fp_path.pack(
+        self.button_browse_emulator_fp_path.pack(
             side=tk.LEFT,
             padx=Constants.UI_PAD_SMALL
         )
 
         # Create frame for emulator PINBALL_FX2
         current_emulator = Emulator.PINBALL_FX2
-        emulator_fx2_frame = tk.Frame(emulators_frame)
+        emulator_fx2_frame = tk.Frame(self.emulators_frame)
         emulator_fx2_frame.pack(
             side=tk.TOP,
             fill=tk.X,
@@ -760,14 +736,10 @@ class SetupDialog:
             side=tk.RIGHT,
             padx=Constants.UI_PAD_SMALL
         )
-        label_emulator_steam_path = tk.Label(
-            self.emulator_steam_path_frame,
-            text=Context.get_text(
-                'input_folder',
-                target='Steam'
-            )
+        self.label_emulator_steam_path = tk.Label(
+            self.emulator_steam_path_frame
         )
-        label_emulator_steam_path.pack(
+        self.label_emulator_steam_path.pack(
             side=tk.LEFT,
             padx=Constants.UI_PAD_SMALL
         )
@@ -789,20 +761,19 @@ class SetupDialog:
             side=tk.LEFT,
             padx=Constants.UI_PAD_SMALL
         )
-        button_browse_emulator_steam_path = tk.Button(
+        self.button_browse_emulator_steam_path = tk.Button(
             self.emulator_steam_path_frame,
-            text=Context.get_text('browse'),
             command=lambda: self.__browse_folder(
                 self.entry_emulator_steam_path)
         )
-        button_browse_emulator_steam_path.pack(
+        self.button_browse_emulator_steam_path.pack(
             side=tk.LEFT,
             padx=Constants.UI_PAD_SMALL
         )
 
         # Create frame for emulator PINBALL_FX3
         current_emulator = Emulator.PINBALL_FX3
-        emulator_fx3_frame = tk.Frame(emulators_frame)
+        emulator_fx3_frame = tk.Frame(self.emulators_frame)
         emulator_fx3_frame.pack(
             side=tk.TOP,
             fill=tk.X,
@@ -838,7 +809,7 @@ class SetupDialog:
 
         # Create frame for emulator PINBALL_FX
         current_emulator = Emulator.PINBALL_FX
-        emulator_fx_frame = tk.Frame(emulators_frame)
+        emulator_fx_frame = tk.Frame(self.emulators_frame)
         emulator_fx_frame.pack(
             side=tk.TOP,
             fill=tk.X,
@@ -874,7 +845,7 @@ class SetupDialog:
 
         # Create frame for emulator PINBALL_M
         current_emulator = Emulator.PINBALL_M
-        emulator_m_frame = tk.Frame(emulators_frame)
+        emulator_m_frame = tk.Frame(self.emulators_frame)
         emulator_m_frame.pack(
             side=tk.TOP,
             fill=tk.X,
@@ -913,7 +884,7 @@ class SetupDialog:
 
         # Initialize screen numbers values
         screen_numbers_values = [
-            Context.get_text('setup_none'),
+            'N/A',
             '0',
             '1',
             '2',
@@ -927,11 +898,10 @@ class SetupDialog:
         ]
 
         # Create frame for all media
-        media_frame = tk.LabelFrame(
-            self.bottom_frame,
-            text=Context.get_text('setup_media')
+        self.media_frame = tk.LabelFrame(
+            self.bottom_frame
         )
-        media_frame.pack(
+        self.media_frame.pack(
             side=tk.LEFT,
             fill=tk.BOTH,
             expand=True,
@@ -940,7 +910,7 @@ class SetupDialog:
 
         # Create frame for media TOPPER
         current_media = Media.TOPPER
-        media_topper_frame = tk.Frame(media_frame)
+        media_topper_frame = tk.Frame(self.media_frame)
         media_topper_frame.pack(
             side=tk.TOP,
             fill=tk.X,
@@ -962,14 +932,13 @@ class SetupDialog:
         media_topper_checkbox.pack(
             side=tk.LEFT
         )
-        media_topper_label = tk.Label(
-            media_topper_frame,
-            text=Context.get_text(current_media.value)
+        self.media_topper_label = tk.Label(
+            media_topper_frame
         )
-        media_topper_label.pack(
+        self.media_topper_label.pack(
             side=tk.LEFT
         )
-        media_topper_label.bind(
+        self.media_topper_label.bind(
             "<Button-1>",
             lambda e: media_topper_checkbox.invoke()
         )
@@ -1003,17 +972,16 @@ class SetupDialog:
             side=tk.RIGHT,
             padx=Constants.UI_PAD_SMALL
         )
-        media_screen_number_topper_label = tk.Label(
-            self.media_screen_number_topper_frame,
-            text=Context.get_text('setup_screen_number')
+        self.media_screen_number_topper_label = tk.Label(
+            self.media_screen_number_topper_frame
         )
-        media_screen_number_topper_label.pack(
+        self.media_screen_number_topper_label.pack(
             side=tk.RIGHT
         )
 
         # Create frame for media BACKGLASS
         current_media = Media.BACKGLASS
-        media_backglass_frame = tk.Frame(media_frame)
+        media_backglass_frame = tk.Frame(self.media_frame)
         media_backglass_frame.pack(
             side=tk.TOP,
             fill=tk.X,
@@ -1035,14 +1003,13 @@ class SetupDialog:
         media_backglass_checkbox.pack(
             side=tk.LEFT
         )
-        media_backglass_label = tk.Label(
+        self.media_backglass_label = tk.Label(
             media_backglass_frame,
-            text=Context.get_text(current_media.value)
         )
-        media_backglass_label.pack(
+        self.media_backglass_label.pack(
             side=tk.LEFT
         )
-        media_backglass_label.bind(
+        self.media_backglass_label.bind(
             "<Button-1>",
             lambda e: media_backglass_checkbox.invoke()
         )
@@ -1077,17 +1044,16 @@ class SetupDialog:
             side=tk.RIGHT,
             padx=Constants.UI_PAD_SMALL
         )
-        media_screen_number_backglass_label = tk.Label(
-            self.media_screen_number_backglass_frame,
-            text=Context.get_text('setup_screen_number')
+        self.media_screen_number_backglass_label = tk.Label(
+            self.media_screen_number_backglass_frame
         )
-        media_screen_number_backglass_label.pack(
+        self.media_screen_number_backglass_label.pack(
             side=tk.RIGHT
         )
 
         # Create frame for media FULL_DMD
         current_media = Media.FULL_DMD
-        media_full_dmd_frame = tk.Frame(media_frame)
+        media_full_dmd_frame = tk.Frame(self.media_frame)
         media_full_dmd_frame.pack(
             side=tk.TOP,
             fill=tk.X,
@@ -1109,14 +1075,13 @@ class SetupDialog:
         media_full_dmd_checkbox.pack(
             side=tk.LEFT
         )
-        media_full_dmd_label = tk.Label(
-            media_full_dmd_frame,
-            text=Context.get_text(current_media.value)
+        self.media_full_dmd_label = tk.Label(
+            media_full_dmd_frame
         )
-        media_full_dmd_label.pack(
+        self.media_full_dmd_label.pack(
             side=tk.LEFT
         )
-        media_full_dmd_label.bind(
+        self.media_full_dmd_label.bind(
             "<Button-1>",
             lambda e: media_full_dmd_checkbox.invoke()
         )
@@ -1150,17 +1115,16 @@ class SetupDialog:
             side=tk.RIGHT,
             padx=Constants.UI_PAD_SMALL
         )
-        media_screen_number_full_dmd_label = tk.Label(
-            self.media_screen_number_full_dmd_frame,
-            text=Context.get_text('setup_screen_number')
+        self.media_screen_number_full_dmd_label = tk.Label(
+            self.media_screen_number_full_dmd_frame
         )
-        media_screen_number_full_dmd_label.pack(
+        self.media_screen_number_full_dmd_label.pack(
             side=tk.RIGHT
         )
 
         # Create frame for media PLAYFIELD
         current_media = Media.PLAYFIELD
-        media_playfield_frame = tk.Frame(media_frame)
+        media_playfield_frame = tk.Frame(self.media_frame)
         media_playfield_frame.pack(
             side=tk.TOP,
             fill=tk.X,
@@ -1182,14 +1146,13 @@ class SetupDialog:
         media_playfield_checkbox.pack(
             side=tk.LEFT
         )
-        media_playfield_label = tk.Label(
-            media_playfield_frame,
-            text=Context.get_text(current_media.value)
+        self.media_playfield_label = tk.Label(
+            media_playfield_frame
         )
-        media_playfield_label.pack(
+        self.media_playfield_label.pack(
             side=tk.LEFT
         )
-        media_playfield_label.bind(
+        self.media_playfield_label.bind(
             "<Button-1>",
             lambda e: media_playfield_checkbox.invoke()
         )
@@ -1224,17 +1187,16 @@ class SetupDialog:
             side=tk.RIGHT,
             padx=Constants.UI_PAD_SMALL
         )
-        media_screen_number_playfield_label = tk.Label(
-            self.media_screen_number_playfield_frame,
-            text=Context.get_text('setup_screen_number')
+        self.media_screen_number_playfield_label = tk.Label(
+            self.media_screen_number_playfield_frame
         )
-        media_screen_number_playfield_label.pack(
+        self.media_screen_number_playfield_label.pack(
             side=tk.RIGHT
         )
 
         # Create frame for media AUDIO
         current_media = Media.AUDIO
-        media_audio_frame = tk.Frame(media_frame)
+        media_audio_frame = tk.Frame(self.media_frame)
         media_audio_frame.pack(
             side=tk.TOP,
             fill=tk.X,
@@ -1256,21 +1218,20 @@ class SetupDialog:
         media_audio_checkbox.pack(
             side=tk.LEFT
         )
-        media_audio_label = tk.Label(
-            media_audio_frame,
-            text=Context.get_text(current_media.value)
+        self.media_audio_label = tk.Label(
+            media_audio_frame
         )
-        media_audio_label.pack(
+        self.media_audio_label.pack(
             side=tk.LEFT
         )
-        media_audio_label.bind(
+        self.media_audio_label.bind(
             "<Button-1>",
             lambda e: media_audio_checkbox.invoke()
         )
 
         # Create frame for media DMD
         current_media = Media.DMD
-        media_dmd_frame = tk.Frame(media_frame)
+        media_dmd_frame = tk.Frame(self.media_frame)
         media_dmd_frame.pack(
             side=tk.TOP,
             fill=tk.X,
@@ -1292,21 +1253,20 @@ class SetupDialog:
         media_dmd_checkbox.pack(
             side=tk.LEFT
         )
-        media_dmd_label = tk.Label(
-            media_dmd_frame,
-            text=Context.get_text(current_media.value)
+        self.media_dmd_label = tk.Label(
+            media_dmd_frame
         )
-        media_dmd_label.pack(
+        self.media_dmd_label.pack(
             side=tk.LEFT
         )
-        media_dmd_label.bind(
+        self.media_dmd_label.bind(
             "<Button-1>",
             lambda e: media_dmd_checkbox.invoke()
         )
 
         # Create frame for media FLYER
         current_media = Media.FLYER
-        media_flyer_frame = tk.Frame(media_frame)
+        media_flyer_frame = tk.Frame(self.media_frame)
         media_flyer_frame.pack(
             side=tk.TOP,
             fill=tk.X,
@@ -1328,21 +1288,20 @@ class SetupDialog:
         media_flyer_checkbox.pack(
             side=tk.LEFT
         )
-        media_flyer_label = tk.Label(
-            media_flyer_frame,
-            text=Context.get_text(current_media.value)
+        self.media_flyer_label = tk.Label(
+            media_flyer_frame
         )
-        media_flyer_label.pack(
+        self.media_flyer_label.pack(
             side=tk.LEFT
         )
-        media_flyer_label.bind(
+        self.media_flyer_label.bind(
             "<Button-1>",
             lambda e: media_flyer_checkbox.invoke()
         )
 
         # Create frame for media HELP
         current_media = Media.HELP
-        media_help_frame = tk.Frame(media_frame)
+        media_help_frame = tk.Frame(self.media_frame)
         media_help_frame.pack(
             side=tk.TOP,
             fill=tk.X,
@@ -1364,21 +1323,20 @@ class SetupDialog:
         media_help_checkbox.pack(
             side=tk.LEFT
         )
-        media_help_label = tk.Label(
-            media_help_frame,
-            text=Context.get_text(current_media.value)
+        self.media_help_label = tk.Label(
+            media_help_frame
         )
-        media_help_label.pack(
+        self.media_help_label.pack(
             side=tk.LEFT
         )
-        media_help_label.bind(
+        self.media_help_label.bind(
             "<Button-1>",
             lambda e: media_help_checkbox.invoke()
         )
 
         # Create frame for media OTHER
         current_media = Media.OTHER
-        media_other_frame = tk.Frame(media_frame)
+        media_other_frame = tk.Frame(self.media_frame)
         media_other_frame.pack(
             side=tk.TOP,
             fill=tk.X,
@@ -1400,21 +1358,20 @@ class SetupDialog:
         media_other_checkbox.pack(
             side=tk.LEFT
         )
-        media_other_label = tk.Label(
-            media_other_frame,
-            text=Context.get_text(current_media.value)
+        self.media_other_label = tk.Label(
+            media_other_frame
         )
-        media_other_label.pack(
+        self.media_other_label.pack(
             side=tk.LEFT
         )
-        media_other_label.bind(
+        self.media_other_label.bind(
             "<Button-1>",
             lambda e: media_other_checkbox.invoke()
         )
 
         # Create frame for media WHEEL_BAR
         current_media = Media.WHEEL_BAR
-        media_wheel_bar_frame = tk.Frame(media_frame)
+        media_wheel_bar_frame = tk.Frame(self.media_frame)
         media_wheel_bar_frame.pack(
             side=tk.TOP,
             fill=tk.X,
@@ -1436,21 +1393,20 @@ class SetupDialog:
         media_wheel_bar_checkbox.pack(
             side=tk.LEFT
         )
-        media_wheel_bar_label = tk.Label(
-            media_wheel_bar_frame,
-            text=Context.get_text(current_media.value)
+        self.media_wheel_bar_label = tk.Label(
+            media_wheel_bar_frame
         )
-        media_wheel_bar_label.pack(
+        self.media_wheel_bar_label.pack(
             side=tk.LEFT
         )
-        media_wheel_bar_label.bind(
+        self.media_wheel_bar_label.bind(
             "<Button-1>",
             lambda e: media_wheel_bar_checkbox.invoke()
         )
 
         # Create frame for media WHEEL_IMAGE
         current_media = Media.WHEEL_IMAGE
-        media_wheel_image_frame = tk.Frame(media_frame)
+        media_wheel_image_frame = tk.Frame(self.media_frame)
         media_wheel_image_frame.pack(
             side=tk.TOP,
             fill=tk.X,
@@ -1472,14 +1428,13 @@ class SetupDialog:
         media_wheel_image_checkbox.pack(
             side=tk.LEFT
         )
-        media_wheel_image_label = tk.Label(
-            media_wheel_image_frame,
-            text=Context.get_text(current_media.value)
+        self.media_wheel_image_label = tk.Label(
+            media_wheel_image_frame
         )
-        media_wheel_image_label.pack(
+        self.media_wheel_image_label.pack(
             side=tk.LEFT
         )
-        media_wheel_image_label.bind(
+        self.media_wheel_image_label.bind(
             "<Button-1>",
             lambda e: media_wheel_image_checkbox.invoke()
         )
@@ -1496,12 +1451,11 @@ class SetupDialog:
         )
 
         # Create buttons to cancel and validate
-        button_cancel = tk.Button(
+        self.button_cancel = tk.Button(
             buttons_frame,
-            text=Context.get_text('cancel'),
             command=self.__cancel
         )
-        button_cancel.pack(
+        self.button_cancel.pack(
             side=tk.LEFT,
             padx=Constants.UI_PAD_SMALL,
             pady=Constants.UI_PAD_SMALL
@@ -1509,11 +1463,261 @@ class SetupDialog:
 
         self.button_validate = tk.Button(
             buttons_frame,
-            text=Context.get_text('validate'),
             command=self.__validate
         )
         self.button_validate.config(state=tk.DISABLED)
         self.button_validate.pack(
             side=tk.LEFT,
             padx=Constants.UI_PAD_SMALL
+        )
+
+    def __update_ui_components_texts(self):
+        """Update texts in UI Components"""
+
+        self.dialog.title(Context.get_text(
+            'setup',
+            lang=self.__lang_code
+        ))
+
+        self.label_lang.config(
+            text=Context.get_text(
+                'lang',
+                lang=self.__lang_code
+            )
+        )
+
+        self.combo_lang.config(
+            values=[
+                Context.get_text(
+                    'lang_fr',
+                    lang=self.__lang_code
+                ),
+                Context.get_text(
+                    'lang_en',
+                    lang=self.__lang_code
+                )
+            ]
+        )
+        self.combo_lang.set(
+            Context.get_text(
+                f'lang_{self.__lang_code}',
+                lang=self.__lang_code
+            )
+        )
+
+        self.label_pinup_path.config(
+            text=Context.get_text(
+                'input_folder',
+                lang=self.__lang_code,
+                target='PinUPSystem'
+            )
+        )
+
+        self.general_frame.config(
+            text=Context.get_text(
+                'setup_general',
+                lang=self.__lang_code
+            )
+        )
+
+        self.button_browse_vpinball.config(
+            text=Context.get_text(
+                'browse',
+                lang=self.__lang_code
+            )
+        )
+
+        self.label_monitor.config(
+            text=Context.get_text(
+                'monitor',
+                lang=self.__lang_code
+            )
+        )
+
+        self.label_simulation.config(
+            text=Context.get_text(
+                'simulation',
+                lang=self.__lang_code
+            )
+        )
+
+        self.label_auto_refresh.config(
+            text=Context.get_text(
+                'auto_refresh',
+                lang=self.__lang_code
+            )
+        )
+
+        self.emulators_frame.config(
+            text=Context.get_text(
+                'setup_emulators',
+                lang=self.__lang_code
+            )
+        )
+
+        self.label_emulator_vpx_path.config(
+            text=Context.get_text(
+                'input_folder',
+                lang=self.__lang_code,
+                target='VisualPinball'
+            )
+        )
+
+        self.button_browse_emulator_vpx_path.config(
+            text=Context.get_text(
+                'browse',
+                lang=self.__lang_code
+            )
+        )
+
+        self.label_emulator_fp_path.config(
+            text=Context.get_text(
+                'input_folder',
+                lang=self.__lang_code,
+                target='FuturePinball'
+            )
+        )
+
+        self.button_browse_emulator_fp_path.config(
+            text=Context.get_text(
+                'browse',
+                lang=self.__lang_code
+            )
+        )
+
+        self.label_emulator_steam_path.config(
+            text=Context.get_text(
+                'input_folder',
+                lang=self.__lang_code,
+                target='Steam'
+            )
+        )
+
+        self.button_browse_emulator_steam_path.config(
+            text=Context.get_text(
+                'browse',
+                lang=self.__lang_code
+            )
+        )
+
+        self.media_frame.config(
+            text=Context.get_text(
+                'setup_media',
+                lang=self.__lang_code
+            )
+        )
+
+        self.media_topper_label.config(
+            text=Context.get_text(
+                Media.TOPPER.value,
+                lang=self.__lang_code
+            )
+        )
+        self.media_screen_number_topper_label.config(
+            text=Context.get_text(
+                'setup_screen_number',
+                lang=self.__lang_code
+            )
+        )
+
+        self.media_backglass_label.config(
+            text=Context.get_text(
+                Media.BACKGLASS.value,
+                lang=self.__lang_code
+            )
+        )
+        self.media_screen_number_backglass_label.config(
+            text=Context.get_text(
+                'setup_screen_number',
+                lang=self.__lang_code
+            )
+        )
+
+        self.media_full_dmd_label.config(
+            text=Context.get_text(
+                Media.FULL_DMD.value,
+                lang=self.__lang_code
+            )
+        )
+        self.media_screen_number_full_dmd_label.config(
+            text=Context.get_text(
+                'setup_screen_number',
+                lang=self.__lang_code
+            )
+        )
+
+        self.media_playfield_label.config(
+            text=Context.get_text(
+                Media.PLAYFIELD.value,
+                lang=self.__lang_code
+            )
+        )
+        self.media_screen_number_playfield_label.config(
+            text=Context.get_text(
+                'setup_screen_number',
+                lang=self.__lang_code
+            )
+        )
+
+        self.media_audio_label.config(
+            text=Context.get_text(
+                Media.AUDIO.value,
+                lang=self.__lang_code
+            )
+        )
+
+        self.media_dmd_label.config(
+            text=Context.get_text(
+                Media.DMD.value,
+                lang=self.__lang_code
+            )
+        )
+
+        self.media_flyer_label.config(
+            text=Context.get_text(
+                Media.FLYER.value,
+                lang=self.__lang_code
+            )
+        )
+
+        self.media_help_label.config(
+            text=Context.get_text(
+                Media.HELP.value,
+                lang=self.__lang_code
+            )
+        )
+
+        self.media_other_label.config(
+            text=Context.get_text(
+                Media.OTHER.value,
+                lang=self.__lang_code
+            )
+        )
+
+        self.media_wheel_bar_label.config(
+            text=Context.get_text(
+                Media.WHEEL_BAR.value,
+                lang=self.__lang_code
+            )
+        )
+
+        self.media_wheel_image_label.config(
+            text=Context.get_text(
+                Media.WHEEL_IMAGE.value,
+                lang=self.__lang_code
+            )
+        )
+
+        self.button_cancel.config(
+            text=Context.get_text(
+                'cancel',
+                lang=self.__lang_code
+            )
+        )
+
+        self.button_validate.config(
+            text=Context.get_text(
+                'validate',
+                lang=self.__lang_code
+            )
         )
