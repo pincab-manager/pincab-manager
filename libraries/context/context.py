@@ -28,7 +28,7 @@ class Context:
     __app_version: str = None
     __lang_code: str = None
     __monitor: int = None
-    __texts = {}
+    __texts_by_lang_code = {}
     __pinup_path: Path = None
     __steam_path: Path = None
     __emulators_paths: dict[Emulator, Path] = {}
@@ -88,6 +88,21 @@ class Context:
                 Context.__app_version = match.group(1)
         except Exception:
             Context.__app_version = 'UNKNOWN'
+
+        # Retrieve text for each lang
+        texts_properties = configparser.ConfigParser()
+        for lang_code in ['fr', 'en']:
+            lang_path = os.path.join(
+                Context.__base_path,
+                Constants.RESOURCES_PATH,
+                'lang',
+                f'messages_{lang_code}.properties'
+            )
+            with open(lang_path, encoding='utf-8') as file:
+                texts_properties.read_file(file)
+            Context.__texts_by_lang_code[lang_code] = {
+                key: value for key, value in texts_properties.items('DEFAULT')
+            }
 
         # Retrieve lang's code from OS language
         lang = locale.getlocale()[0]
@@ -192,13 +207,16 @@ class Context:
         return Context.__lang_code
 
     @staticmethod
-    def get_text(text_id: str, **kwargs) -> str:
+    def get_text(text_id: str, lang=None, **kwargs) -> str:
         """Get text from its id"""
 
         if not Context.__initialized:
             Context.init()
 
-        return Context.__texts[text_id].format(**kwargs)
+        if lang is None:
+            lang = Context.get_lang_code()
+
+        return Context.__texts_by_lang_code[lang][text_id].format(**kwargs)
 
     @staticmethod
     def get_selected_category() -> Category:
@@ -745,20 +763,6 @@ class Context:
                         Constants.SETUP_SCREEN_NUMBER_BY_MEDIA
                     ].replace('\'', '\"')
                 )
-
-        # Retrieve texts properties from lang's code
-        texts_properties = configparser.ConfigParser()
-        lang_path = os.path.join(
-            Context.get_base_path(),
-            Constants.RESOURCES_PATH,
-            'lang',
-            f'messages_{Context.__lang_code}.properties'
-        )
-        with open(lang_path, encoding='utf-8') as file:
-            texts_properties.read_file(file)
-        Context.__texts = {
-            key: value for key, value in texts_properties.items('DEFAULT')
-        }
 
     @staticmethod
     def get_selenium_web_browser() -> dict:
