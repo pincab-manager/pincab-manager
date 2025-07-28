@@ -404,6 +404,9 @@ class UIMedia(tk.LabelFrame):
             analysis_enabled=self.__analysis_enabled
         )
 
+        # Advise that media's status changed
+        self.__update_media_actions()
+
     def __export_media(self):
         """Export media in a file"""
 
@@ -456,6 +459,9 @@ class UIMedia(tk.LabelFrame):
 
             # Stop the media
             self.__media_player.stop()
+
+        # Create dirs if missing
+        os.makedirs(self.__destination_path, exist_ok=True)
 
         # Execute yt-dlp
         final_video_output_path = os.path.join(
@@ -532,6 +538,9 @@ class UIMedia(tk.LabelFrame):
                 mode=self.__mode,
                 analysis_enabled=self.__analysis_enabled
             )
+
+            # Advise that media's status changed
+            self.__update_media_actions()
 
     def __download_youtube(self):
         """Download a media from YouTube"""
@@ -706,6 +715,9 @@ class UIMedia(tk.LabelFrame):
             mode=self.__mode,
             analysis_enabled=self.__analysis_enabled
         )
+
+        # Advise that media's status changed
+        self.__update_media_actions()
 
     def __run_analysis(self, file_path, media):
         """Run analysis for the specified media"""
@@ -884,6 +896,9 @@ class UIMedia(tk.LabelFrame):
             mode=self.__mode,
             analysis_enabled=self.__analysis_enabled
         )
+
+        # Advise that media's status changed
+        self.__update_media_actions()
 
     def __transform_media(
         self,
@@ -1153,6 +1168,9 @@ class UIMedia(tk.LabelFrame):
             analysis_enabled=self.__analysis_enabled
         )
 
+        # Advise that media's status changed
+        self.__update_media_actions()
+
     def stop_media(self):
         """Stop the media"""
 
@@ -1260,6 +1278,3 @@ class UIMedia(tk.LabelFrame):
 
         # Update icons
         self.__update_icons()
-
-        # Advise that media's status changed
-        self.__update_media_actions()
