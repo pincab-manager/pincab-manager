@@ -129,11 +129,9 @@ class ApplicationWindow:
     def __update_data(self):
         """Update data"""
 
-        # Force refresh if auto refresh or no CSV exists with data
-        if Context.is_auto_refresh() or (
-            Context.get_setup_file_path().exists() and
-            not Context.get_selected_rows_csv_path().exists()
-        ):
+        # Force refresh if no CSV exists with data
+        if Context.get_setup_file_path().exists() and \
+                not Context.get_selected_rows_csv_path().exists():
             # If auto refresh
             self.__load_refresh()
         else:
@@ -210,12 +208,13 @@ class ApplicationWindow:
         Context.set_selected_configs_rows([])
         Context.set_selected_components([])
 
-    def __load_refresh(self):
+    def __load_refresh(self, only_ids=None):
         """Load refresh"""
 
         # Load dialog to refresh
         RefreshDialog(
             self.__window,
+            only_ids=only_ids,
             callback=self.__update_ui
         )
 
@@ -296,41 +295,41 @@ class ApplicationWindow:
                     # If component PINUP_MEDIA
                     MediaEditorDialog(
                         self.__window,
-                        callback=self.__update_data
+                        callback=self.__load_refresh
                     )
 
                 case Component.EMULATOR_TABLE:
                     # If component EMULATOR_TABLE
                     TablesEditorDialog(
                         self.__window,
-                        callback=self.__update_data
+                        callback=self.__load_refresh
                     )
 
                 case Component.EMULATOR_PLAYLIST:
                     # If component EMULATOR_PLAYLIST
                     PlaylistsEditorDialog(
                         self.__window,
-                        callback=self.__update_data
+                        callback=self.__load_refresh
                     )
 
                 case Component.FILES:
                     # If component FILES
                     ConfigsFilesEditorDialog(
                         self.__window,
-                        callback=self.__update_data
+                        callback=self.__load_refresh
                     )
 
                 case Component.REGISTRY:
                     # If component REGISTRY
                     ConfigsRegistryEditorDialog(
                         self.__window,
-                        callback=self.__update_data
+                        callback=self.__load_refresh
                     )
         else:
             # If other action, execution is automatic
             ExecuteDialog(
                 self.__window,
-                callback=self.__update_data
+                callback=self.__load_refresh
             )
 
     def __create_top_components(self):
@@ -430,10 +429,8 @@ class ApplicationWindow:
             command=self.__load_setup
         )
         self.button_setup.pack(
-            side=tk.TOP,
-            fill=tk.X,
-            expand=True,
-            pady=(0, Constants.UI_PAD_SMALL)
+            side=tk.LEFT,
+            padx=Constants.UI_PAD_SMALL
         )
 
         # Button for about
@@ -442,18 +439,6 @@ class ApplicationWindow:
             command=self.__load_about
         )
         self.button_about.pack(
-            side=tk.BOTTOM,
-            fill=tk.X,
-            expand=True,
-            pady=(Constants.UI_PAD_SMALL, 0)
-        )
-
-        # Button to refresh
-        self.button_refresh = tk.Button(
-            top_frame,
-            command=self.__load_refresh
-        )
-        self.button_refresh.pack(
             side=tk.RIGHT,
             padx=Constants.UI_PAD_SMALL
         )
@@ -483,7 +468,8 @@ class ApplicationWindow:
         self.table_top = UITable(
             parent=self.table_top_frame,
             on_selected_rows_change=self.__on_selected_rows_changed,
-            rows=rows
+            rows=rows,
+            action_to_refresh=self.__load_refresh
         )
 
     def __create_table_bottom(
@@ -581,9 +567,6 @@ class ApplicationWindow:
         )
         self.button_about.config(
             text=Context.get_text('about')
-        )
-        self.button_refresh.config(
-            text=Context.get_text('refresh')
         )
         self.button_execute.config(
             text=Context.get_text('execute')

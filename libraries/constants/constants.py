@@ -110,7 +110,6 @@ class Constants:
     SETUP_STEAM_PATH = 'steam_path'
     SETUP_MONITOR = 'monitor'
     SETUP_SIMULATED = 'simulated'
-    SETUP_AUTO_REFRESH = 'auto_refresh'
     SETUP_AVAILABLE_EMULATORS = 'available_emulators'
     SETUP_AVAILABLE_MEDIA = 'available_media'
     SETUP_SCREEN_NUMBER_BY_MEDIA = 'screen_number_by_media'

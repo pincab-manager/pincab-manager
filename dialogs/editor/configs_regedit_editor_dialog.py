@@ -39,6 +39,7 @@ class ConfigsRegistryEditorDialog:
         """Initialize dialog"""
 
         self.__callback = callback
+        self.__modified_ids = []
         self.__table = None
         self.__current_item_id = None
         self.__current_item_folder_path = None
@@ -348,6 +349,11 @@ class ConfigsRegistryEditorDialog:
     def __run_create_config(self, should_interrupt):
         """Run create a new config"""
 
+        # Flag item as modified
+        self.__flag_item_as_modified(
+            item_id=self.new_config
+        )
+
         # Create the config path
         os.makedirs(os.path.join(
             Context.get_configs_path(),
@@ -414,6 +420,9 @@ class ConfigsRegistryEditorDialog:
 
     def __run_delete_config(self, should_interrupt):
         """Run delete a config"""
+
+        # Flag item as modified
+        self.__flag_item_as_modified()
 
         # Delete the folder
         FileHelper.delete_folder(
@@ -490,11 +499,26 @@ class ConfigsRegistryEditorDialog:
         # Reinitialize listbox
         self.__reinit_listbox()
 
+    def __flag_item_as_modified(
+        self,
+        item_id=None
+    ):
+        """Flag the item as modified. If no item, current item is concerned"""
+
+        if item_id is None:
+            item_id = self.__current_item_id
+
+        if item_id not in self.__modified_ids:
+            self.__modified_ids.append(item_id)
+
     def __on_close(self):
         """Called when closing"""
 
-        # Call back
-        self.__callback()
+        # Call back if some modifications done
+        if len(self.__modified_ids) > 0:
+            self.__callback(
+                only_ids=self.__modified_ids
+            )
 
         # Close the dialog
         UIHelper.close_dialog(self.__dialog)
@@ -516,6 +540,9 @@ class ConfigsRegistryEditorDialog:
 
     def __import_regedit_key_step2(self, selected_key: str):
         """Import a regedit's key step 2"""
+
+        # Flag item as modified
+        self.__flag_item_as_modified()
 
         if selected_key is None:
             return
@@ -570,6 +597,9 @@ class ConfigsRegistryEditorDialog:
     def __run_rename_file(self, should_interrupt):
         """Run rename file"""
 
+        # Flag item as modified
+        self.__flag_item_as_modified()
+
         # Rename the file
         FileHelper.move_file(
             source_file_path=self.__get_selected_item_path(),
@@ -600,6 +630,9 @@ class ConfigsRegistryEditorDialog:
 
     def __run_delete_file(self, should_interrupt):
         """Run delete file"""
+
+        # Flag item as modified
+        self.__flag_item_as_modified()
 
         # Delete the current file
         FileHelper.delete_file(
@@ -638,13 +671,13 @@ class ConfigsRegistryEditorDialog:
                 else:
                     files.append(item)
 
-            for file in files:
-                self.__listbox.insert(
-                    tk.END,
-                    f"📄 {file}"
-                )
             for folder in folders:
                 self.__listbox.insert(
                     tk.END,
                     f"📁 {folder}"
+                )
+            for file in files:
+                self.__listbox.insert(
+                    tk.END,
+                    f"📄 {file}"
                 )

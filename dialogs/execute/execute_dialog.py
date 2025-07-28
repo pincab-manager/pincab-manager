@@ -176,7 +176,9 @@ class ExecuteDialog:
         )
 
         # Call back
-        self.__callback()
+        self.__callback(
+            only_ids=self.__executor.get_ids_done()
+        )
 
         # Close the dialog
         UIHelper.close_dialog(self.dialog)
@@ -194,7 +196,9 @@ class ExecuteDialog:
             UIHelper.close_dialog(self.dialog)
 
             # Call back
-            self.__callback()
+            self.__callback(
+                only_ids=self.__executor.get_ids_done()
+            )
 
         elif messagebox.askokcancel(
             Context.get_text('confirmation'),
