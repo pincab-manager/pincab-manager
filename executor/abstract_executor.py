@@ -29,6 +29,7 @@ class AbstractExecutor(ABC):
         self.__progress_bar = progress_bar
         self.__progress_label = progress_label
         self.__button_close = button_close
+        self.__ids_dones = []
         self.__copy_folder_path = None
         if Context.get_selected_action() == Action.COPY:
             self.__copy_folder_path = os.path.join(
@@ -118,6 +119,11 @@ class AbstractExecutor(ABC):
                 )
             )
 
+            # Append id
+            self.__ids_dones.append(
+                row[Constants.UI_TABLE_KEY_COL_ID]
+            )
+
             # Do execution for the current item
             try:
                 self.do_execution(
@@ -155,6 +161,11 @@ class AbstractExecutor(ABC):
         self.__button_close.config(
             text=Context.get_text('close')
         )
+
+    def get_ids_done(self) -> list:
+        """Return ids done"""
+
+        return self.__ids_dones
 
     @abstractmethod
     def do_execution(self, item_id: str):

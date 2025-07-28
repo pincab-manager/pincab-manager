@@ -42,6 +42,7 @@ class PlaylistsEditorDialog:
         """Initialize dialog"""
 
         self.__callback = callback
+        self.__modified_ids = []
         self.__table = None
         self.__current_item_id = None
         self.__current_csv_item = None
@@ -476,6 +477,9 @@ class PlaylistsEditorDialog:
     def __run_validate(self, should_interrupt):
         """Run validate"""
 
+        # Flag item as modified
+        self.__flag_item_as_modified()
+
         # Modify the playlist in the CSV
         csv_items = CsvHelper.read_data(
             file_path=Context.get_csv_path()
@@ -606,6 +610,11 @@ class PlaylistsEditorDialog:
     def __run_create_playlist(self, should_interrupt):
         """Run create a new playlist"""
 
+        # Flag item as modified
+        self.__flag_item_as_modified(
+            item_id=self.new_playlist_id
+        )
+
         # Create the media path
         os.makedirs(os.path.join(
             self.playlist_folder,
@@ -731,6 +740,9 @@ class PlaylistsEditorDialog:
     def __run_delete_playlist(self, should_interrupt):
         """Run delete a playlist"""
 
+        # Flag item as modified
+        self.__flag_item_as_modified()
+
         # Delete the folder
         FileHelper.delete_folder(
             folder_path=os.path.join(
@@ -798,6 +810,9 @@ class PlaylistsEditorDialog:
 
     def __run_create_version(self, should_interrupt):
         """Run create a new version"""
+
+        # Flag item as modified
+        self.__flag_item_as_modified()
 
         # Copy folder to the new version
         FileHelper.copy_folder(
@@ -882,6 +897,9 @@ class PlaylistsEditorDialog:
 
     def __run_rename_version(self, should_interrupt):
         """Run rename a version"""
+
+        # Flag item as modified
+        self.__flag_item_as_modified()
 
         # Move folder to the new version
         FileHelper.move_folder(
@@ -982,6 +1000,9 @@ class PlaylistsEditorDialog:
 
     def __run_delete_version(self, should_interrupt):
         """Run delete a version"""
+
+        # Flag item as modified
+        self.__flag_item_as_modified()
 
         # Delete the folder
         FileHelper.delete_folder(
@@ -1137,11 +1158,26 @@ class PlaylistsEditorDialog:
         # Initialize info entries
         self.__init_info_entries()
 
+    def __flag_item_as_modified(
+        self,
+        item_id=None
+    ):
+        """Flag the item as modified. If no item, current item is concerned"""
+
+        if item_id is None:
+            item_id = self.__current_item_id
+
+        if item_id not in self.__modified_ids:
+            self.__modified_ids.append(item_id)
+
     def __on_close(self):
         """Called when closing"""
 
-        # Call back
-        self.__callback()
+        # Call back if some modifications done
+        if len(self.__modified_ids) > 0:
+            self.__callback(
+                only_ids=self.__modified_ids
+            )
 
         # Close the dialog
         UIHelper.close_dialog(self.__dialog)

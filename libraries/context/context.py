@@ -42,7 +42,6 @@ class Context:
     __selected_configs_rows = []
     __selected_folder_path = None
     __simulated: bool = False
-    __auto_refresh: bool = True
     __available_emulators = []
     __available_media = []
     __screen_number_by_media = {}
@@ -119,9 +118,6 @@ class Context:
 
         # Initialize boolean simulated
         Context.__simulated = False
-
-        # Initialize boolean auto refresh
-        Context.__auto_refresh = True
 
         # Specify that context is initialized
         Context.__initialized = True
@@ -622,15 +618,6 @@ class Context:
         return Context.__simulated
 
     @staticmethod
-    def is_auto_refresh() -> bool:
-        """Specify if app is auto refresh"""
-
-        if not Context.__initialized:
-            Context.init()
-
-        return Context.__auto_refresh
-
-    @staticmethod
     def list_available_emulators() -> list:
         """List available emulators"""
 
@@ -734,11 +721,6 @@ class Context:
             if Constants.SETUP_SIMULATED in setup_items:
                 Context.__simulated = setup_items[
                     Constants.SETUP_SIMULATED
-                ] == 'True'
-
-            if Constants.SETUP_AUTO_REFRESH in setup_items:
-                Context.__auto_refresh = setup_items[
-                    Constants.SETUP_AUTO_REFRESH
                 ] == 'True'
 
             if Constants.SETUP_AVAILABLE_EMULATORS in setup_items:

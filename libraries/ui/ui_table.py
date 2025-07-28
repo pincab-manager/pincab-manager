@@ -9,7 +9,11 @@ from libraries.context.context import Context
 from libraries.verifier.verifier import Verifier
 
 # pylint: disable=too-many-branches, too-many-locals
+# pylint: disable=too-many-locals
 # pylint: disable=too-many-statements
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-positional-arguments
+# pylint: disable=too-many-instance-attributes
 
 
 class UITable:
@@ -20,34 +24,26 @@ class UITable:
         parent: any,
         on_selected_rows_change: any,
         rows: list,
+        action_to_refresh=None,
         multiple_selection=True
     ):
         """Initialize table"""
 
         self.__on_selected_rows_changed = on_selected_rows_change
+        self.__action_to_refresh = action_to_refresh
         self.__multiple_selection = multiple_selection
 
-        # Create center frame
-        center_frame = tk.Frame(parent)
-        center_frame.pack(
+        # Create top frame
+        top_frame = tk.Frame(parent)
+        top_frame.pack(
             side=tk.TOP,
-            fill=tk.BOTH,
-            padx=Constants.UI_PAD_BIG,
-            expand=True
-        )
-
-        # Create bottom frame
-        bottom_frame = tk.Frame(parent)
-        bottom_frame.pack(
-            side=tk.TOP,
-            fill=tk.X,
-            pady=Constants.UI_PAD_BIG
+            fill=tk.X
         )
 
         # Create buttons to select/unselect all rows
         if self.__multiple_selection:
             self.__button_select_all = tk.Button(
-                bottom_frame,
+                top_frame,
                 text=Context.get_text('select_all'),
                 command=lambda: self.__set_selected_all_rows(True)
             )
@@ -56,7 +52,7 @@ class UITable:
                 padx=Constants.UI_PAD_BIG
             )
             self.__button_deselect_all = tk.Button(
-                bottom_frame,
+                top_frame,
                 text=Context.get_text('deselect_all'),
                 command=lambda: self.__set_selected_all_rows(False)
             )
@@ -65,6 +61,40 @@ class UITable:
                 side=tk.LEFT,
                 padx=Constants.UI_PAD_SMALL
             )
+
+        # Create button to refresh all rows
+        if action_to_refresh is not None:
+            self.__button_refresh_selection = tk.Button(
+                top_frame,
+                text=Context.get_text('refresh_selection'),
+                command=lambda: action_to_refresh(
+                    only_ids=self.get_selected_ids()
+                )
+            )
+            self.__button_refresh_selection.config(state=tk.DISABLED)
+            self.__button_refresh_selection.pack(
+                side=tk.RIGHT,
+                padx=(Constants.UI_PAD_BIG, 3 * Constants.UI_PAD_BIG)
+            )
+            self.__button_refresh_all = tk.Button(
+                top_frame,
+                text=Context.get_text('refresh_all'),
+                command=action_to_refresh
+            )
+            self.__button_refresh_all.pack(
+                side=tk.RIGHT,
+                padx=Constants.UI_PAD_SMALL
+            )
+
+        # Create center frame
+        center_frame = tk.Frame(parent)
+        center_frame.pack(
+            side=tk.TOP,
+            fill=tk.BOTH,
+            padx=Constants.UI_PAD_BIG,
+            pady=Constants.UI_PAD_BIG,
+            expand=True
+        )
 
         # Retrieve columns ids from rows
         columns_ids = []
@@ -149,12 +179,18 @@ class UITable:
             if selected_rows_counter == 0:
                 self.__button_select_all.config(state=tk.NORMAL)
                 self.__button_deselect_all.config(state=tk.DISABLED)
+                if self.__action_to_refresh is not None:
+                    self.__button_refresh_selection.config(state=tk.DISABLED)
             elif selected_rows_counter == len(self.__tree.get_children()):
                 self.__button_select_all.config(state=tk.DISABLED)
                 self.__button_deselect_all.config(state=tk.NORMAL)
+                if self.__action_to_refresh is not None:
+                    self.__button_refresh_selection.config(state=tk.NORMAL)
             else:
                 self.__button_select_all.config(state=tk.NORMAL)
                 self.__button_deselect_all.config(state=tk.NORMAL)
+                if self.__action_to_refresh is not None:
+                    self.__button_refresh_selection.config(state=tk.NORMAL)
 
         # Advise that selected rows changed
         self.__on_selected_rows_changed()
@@ -280,6 +316,14 @@ class UITable:
                 result.append(self.__rows[child_idx])
             child_idx += 1
 
+        return result
+
+    def get_selected_ids(self):
+        """Get selected ids"""
+
+        result = []
+        for selected_row in self.get_selected_rows():
+            result.append(selected_row[Constants.UI_TABLE_KEY_COL_ID])
         return result
 
     def set_selected_rows(

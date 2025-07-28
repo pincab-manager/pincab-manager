@@ -31,6 +31,7 @@ class MediaEditorDialog:
         """Initialize dialog"""
 
         self.__callback = callback
+        self.__modified_ids = []
         self.__table = None
         self.__current_item_id = None
         self.__current_media_path = None
@@ -637,6 +638,18 @@ class MediaEditorDialog:
             side=tk.TOP
         )
 
+    def __flag_item_as_modified(
+        self,
+        item_id=None
+    ):
+        """Flag the item as modified. If no item, current item is concerned"""
+
+        if item_id is None:
+            item_id = self.__current_item_id
+
+        if item_id not in self.__modified_ids:
+            self.__modified_ids.append(item_id)
+
     def __on_close(self):
         """Called when closing"""
 
@@ -644,8 +657,11 @@ class MediaEditorDialog:
         for media_component in self.__media_components:
             media_component.stop_media()
 
-        # Call back
-        self.__callback()
+        # Call back if some modifications done
+        if len(self.__modified_ids) > 0:
+            self.__callback(
+                only_ids=self.__modified_ids
+            )
 
         # Close the dialog
         UIHelper.close_dialog(self.__dialog)
@@ -737,6 +753,9 @@ class MediaEditorDialog:
 
     def __update_media_actions(self):
         """Update media actions"""
+
+        # Flag item as modified
+        self.__flag_item_as_modified()
 
         # Update buttons to mute/unmute media
         muted_components_count = 0

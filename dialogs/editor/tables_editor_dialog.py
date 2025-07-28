@@ -47,6 +47,7 @@ class TablesEditorDialog:
         """Initialize dialog"""
 
         self.__callback = callback
+        self.__modified_ids = []
         self.__table = None
         self.__vlc_window = None
         self.__vlc_media_player = None
@@ -1111,6 +1112,9 @@ class TablesEditorDialog:
     def __run_validate(self, should_interrupt):
         """Run validate"""
 
+        # Flag item as modified
+        self.__flag_item_as_modified()
+
         # Modify the table in the CSV
         csv_items = CsvHelper.read_data(
             file_path=Context.get_csv_path()
@@ -1291,6 +1295,11 @@ class TablesEditorDialog:
     def __run_create_table(self, should_interrupt):
         """Run create a new table"""
 
+        # Flag item as modified
+        self.__flag_item_as_modified(
+            item_id=self.new_table_id
+        )
+
         # Create the media path
         os.makedirs(os.path.join(
             self.table_folder,
@@ -1446,6 +1455,9 @@ class TablesEditorDialog:
     def __run_delete_table(self, should_interrupt):
         """Run delete a table"""
 
+        # Flag item as modified
+        self.__flag_item_as_modified()
+
         # Delete the folder
         FileHelper.delete_folder(
             folder_path=os.path.join(
@@ -1514,6 +1526,9 @@ class TablesEditorDialog:
 
     def __run_create_version(self, should_interrupt):
         """Run create a new version"""
+
+        # Flag item as modified
+        self.__flag_item_as_modified()
 
         # Copy folder to the new version
         FileHelper.copy_folder(
@@ -1613,6 +1628,9 @@ class TablesEditorDialog:
 
     def __run_rename_version(self, should_interrupt):
         """Run rename a version"""
+
+        # Flag item as modified
+        self.__flag_item_as_modified()
 
         # Move folder to the new version
         FileHelper.move_folder(
@@ -1731,6 +1749,9 @@ class TablesEditorDialog:
 
     def __run_delete_version(self, should_interrupt):
         """Run delete a version"""
+
+        # Flag item as modified
+        self.__flag_item_as_modified()
 
         # Delete the folder
         FileHelper.delete_folder(
@@ -1961,11 +1982,26 @@ class TablesEditorDialog:
         # Initialize info entries
         self.__init_info_entries()
 
+    def __flag_item_as_modified(
+        self,
+        item_id=None
+    ):
+        """Flag the item as modified. If no item, current item is concerned"""
+
+        if item_id is None:
+            item_id = self.__current_item_id
+
+        if item_id not in self.__modified_ids:
+            self.__modified_ids.append(item_id)
+
     def __on_close(self):
         """Called when closing"""
 
-        # Call back
-        self.__callback()
+        # Call back if some modifications done
+        if len(self.__modified_ids) > 0:
+            self.__callback(
+                only_ids=self.__modified_ids
+            )
 
         # Close VLC
         self.__close_vlc_window()
@@ -2041,6 +2077,9 @@ class TablesEditorDialog:
     def __run_create_folder(self, should_interrupt):
         """Run create folder"""
 
+        # Flag item as modified
+        self.__flag_item_as_modified()
+
         # Create the folder
         FileHelper.create_folder(
             folder_path=os.path.join(
@@ -2088,6 +2127,9 @@ class TablesEditorDialog:
 
     def __run_import_file(self, should_interrupt):
         """Run import file"""
+
+        # Flag item as modified
+        self.__flag_item_as_modified()
 
         # Retrieve new file path's name
         if self.__keep_table_name:
@@ -2138,6 +2180,9 @@ class TablesEditorDialog:
     def __run_import_folder(self, should_interrupt):
         """Run import folder"""
 
+        # Flag item as modified
+        self.__flag_item_as_modified()
+
         # Retrieve new folder path's name
         new_folder_name = os.path.basename(
             self.__source_folder_path
@@ -2175,6 +2220,9 @@ class TablesEditorDialog:
 
     def __run_import_videos(self, should_interrupt):
         """Run import videos"""
+
+        # Flag item as modified
+        self.__flag_item_as_modified()
 
         # Retrieve new videos path's name
         new_videos_path_name = os.path.basename(
@@ -2323,6 +2371,9 @@ class TablesEditorDialog:
     def __run_delete_file(self, should_interrupt):
         """Run delete file"""
 
+        # Flag item as modified
+        self.__flag_item_as_modified()
+
         # Delete the current file
         FileHelper.delete_file(
             file_path=self.__get_selected_item_path()
@@ -2352,6 +2403,9 @@ class TablesEditorDialog:
     def __run_delete_folder(self, should_interrupt):
         """Run delete folder"""
 
+        # Flag item as modified
+        self.__flag_item_as_modified()
+
         # Delete the current folder
         FileHelper.delete_folder(
             folder_path=self.__get_selected_item_path()
@@ -2380,6 +2434,9 @@ class TablesEditorDialog:
 
     def __run_delete_videos(self, should_interrupt):
         """Run delete videos"""
+
+        # Flag item as modified
+        self.__flag_item_as_modified()
 
         # Delete the current videos
         FileHelper.delete_folder(
@@ -2425,6 +2482,9 @@ class TablesEditorDialog:
     def __run_rename_file(self, should_interrupt):
         """Run rename file"""
 
+        # Flag item as modified
+        self.__flag_item_as_modified()
+
         # Rename the file
         FileHelper.move_file(
             source_file_path=self.__get_selected_item_path(),
@@ -2462,6 +2522,9 @@ class TablesEditorDialog:
     def __run_rename_folder(self, should_interrupt):
         """Run rename folder"""
 
+        # Flag item as modified
+        self.__flag_item_as_modified()
+
         # Rename the folder
         FileHelper.move_folder(
             source_folder_path=self.__get_selected_item_path(),
@@ -2498,6 +2561,9 @@ class TablesEditorDialog:
 
     def __run_rename_videos(self, should_interrupt):
         """Run rename videos"""
+
+        # Flag item as modified
+        self.__flag_item_as_modified()
 
         # Rename the current videos path
         FileHelper.move_folder(
@@ -2545,6 +2611,9 @@ class TablesEditorDialog:
 
     def __run_execute_batch(self, should_interrupt):
         """Run execute the Batch"""
+
+        # Flag item as modified
+        self.__flag_item_as_modified()
 
         # Execute the batch with a timeout of 10 seconds
         CmdHelper.run(
@@ -2611,15 +2680,15 @@ class TablesEditorDialog:
                 else:
                     files.append(item)
 
-            for file in files:
-                self.__listbox.insert(
-                    tk.END,
-                    f"📄 {file}"
-                )
             for folder in folders:
                 self.__listbox.insert(
                     tk.END,
                     f"📁 {folder}"
+                )
+            for file in files:
+                self.__listbox.insert(
+                    tk.END,
+                    f"📄 {file}"
                 )
 
             # Update label for sub folder

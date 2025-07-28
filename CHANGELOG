@@ -1,3 +1,6 @@
+R0.13.0 - 07/28/2025
+- feat(refresh_faster): Refresh only necessary to be faster
+
 R0.12.0 - 07/23/2025
 - feat(setup_language): Update texts in Setup UI Components depending on selected language
 

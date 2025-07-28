@@ -29,19 +29,26 @@ class RefreshDialog:
     def __init__(
         self,
         parent,
+        only_ids: list[str],
         callback: any
     ):
         """Initialize dialog"""
 
         self.__refresh_done = False
         self.__interruption_requested = False
+        self.__only_ids = only_ids
         self.__callback = callback
 
         # Create dialog
         self.dialog = tk.Toplevel(parent)
 
         # Fix dialog's title
-        self.dialog.title(Context.get_text('refresh'))
+        self.dialog.title(Context.get_text(
+            'refresh',
+            target=Context.get_text(
+                Context.get_selected_category().value
+            )
+        ))
 
         # Fix dialog's size and position
         UIHelper.center_dialog(
@@ -99,7 +106,10 @@ class RefreshDialog:
                     case Action.INSTALL:
 
                         # Initialize progress bar
-                        item_total_counter = len(csv_tables)
+                        item_current_counter = 0
+                        item_total_counter = self.__count_items_to_refresh(
+                            items=csv_tables
+                        )
                         self.progress_bar.config(
                             maximum=item_total_counter
                         )
@@ -109,15 +119,17 @@ class RefreshDialog:
                             csv_table_id = csv_table[Constants.CSV_COL_ID]
                             csv_table_name = csv_table[Constants.CSV_COL_NAME]
 
+                            # Ignore item to refresh if requested
+                            if not self.__is_item_to_refresh(csv_table_id):
+                                continue
+
                             # Interrupt process if requested
                             if self.__interruption_requested:
                                 self.__on_close()
                                 return
 
                             # Increment progress bar
-                            item_current_counter = csv_tables.index(
-                                csv_table
-                            )
+                            item_current_counter += 1
                             self.progress_bar['value'] = item_current_counter
                             self.progress_label.config(
                                 text=Context.get_text(
@@ -202,7 +214,10 @@ class RefreshDialog:
                     case Action.UNINSTALL:
 
                         # Initialize progress bar
-                        item_total_counter = len(bdd_tables)
+                        item_current_counter = 0
+                        item_total_counter = self.__count_items_to_refresh(
+                            items=bdd_tables
+                        )
                         self.progress_bar.config(
                             maximum=item_total_counter
                         )
@@ -212,15 +227,17 @@ class RefreshDialog:
                             bdd_table_id = bdd_table[Constants.BDD_COL_TABLE_ID]
                             bdd_table_name = bdd_table[Constants.BDD_COL_TABLE_NAME]
 
+                            # Ignore item to refresh if requested
+                            if not self.__is_item_to_refresh(bdd_table_id):
+                                continue
+
                             # Interrupt process if requested
                             if self.__interruption_requested:
                                 self.__on_close()
                                 return
 
                             # Increment progress bar
-                            item_current_counter = bdd_tables.index(
-                                bdd_table
-                            )
+                            item_current_counter += 1
                             self.progress_bar['value'] = item_current_counter
                             self.progress_label.config(
                                 text=Context.get_text(
@@ -302,7 +319,10 @@ class RefreshDialog:
                     case Action.EXPORT:
 
                         # Initialize progress bar
-                        item_total_counter = len(bdd_tables)
+                        item_current_counter = 0
+                        item_total_counter = self.__count_items_to_refresh(
+                            items=bdd_tables
+                        )
                         self.progress_bar.config(
                             maximum=item_total_counter
                         )
@@ -312,15 +332,17 @@ class RefreshDialog:
                             bdd_table_id = bdd_table[Constants.BDD_COL_TABLE_ID]
                             bdd_table_name = bdd_table[Constants.BDD_COL_TABLE_NAME]
 
+                            # Ignore item to refresh if requested
+                            if not self.__is_item_to_refresh(bdd_table_id):
+                                continue
+
                             # Interrupt process if requested
                             if self.__interruption_requested:
                                 self.__on_close()
                                 return
 
                             # Increment progress bar
-                            item_current_counter = bdd_tables.index(
-                                bdd_table
-                            )
+                            item_current_counter += 1
                             self.progress_bar['value'] = item_current_counter
                             self.progress_label.config(
                                 text=Context.get_text(
@@ -411,7 +433,10 @@ class RefreshDialog:
                     case Action.COPY:
 
                         # Initialize progress bar
-                        item_total_counter = len(csv_tables)
+                        item_current_counter = 0
+                        item_total_counter = self.__count_items_to_refresh(
+                            items=csv_tables
+                        )
                         self.progress_bar.config(
                             maximum=item_total_counter
                         )
@@ -421,15 +446,17 @@ class RefreshDialog:
                             csv_table_id = csv_table[Constants.CSV_COL_ID]
                             csv_table_name = csv_table[Constants.CSV_COL_NAME]
 
+                            # Ignore item to refresh if requested
+                            if not self.__is_item_to_refresh(csv_table_id):
+                                continue
+
                             # Interrupt process if requested
                             if self.__interruption_requested:
                                 self.__on_close()
                                 return
 
                             # Increment progress bar
-                            item_current_counter = csv_tables.index(
-                                csv_table
-                            )
+                            item_current_counter += 1
                             self.progress_bar['value'] = item_current_counter
                             self.progress_label.config(
                                 text=Context.get_text(
@@ -482,7 +509,10 @@ class RefreshDialog:
                     case Action.EDIT:
 
                         # Initialize progress bar
-                        item_total_counter = len(csv_tables)
+                        item_current_counter = 0
+                        item_total_counter = self.__count_items_to_refresh(
+                            items=csv_tables
+                        )
                         self.progress_bar.config(
                             maximum=item_total_counter
                         )
@@ -491,6 +521,10 @@ class RefreshDialog:
                         for csv_table in csv_tables:
                             csv_table_id = csv_table[Constants.CSV_COL_ID]
                             csv_table_name = csv_table[Constants.CSV_COL_NAME]
+
+                            # Ignore item to refresh if requested
+                            if not self.__is_item_to_refresh(csv_table_id):
+                                continue
 
                             # Interrupt process if requested
                             if self.__interruption_requested:
@@ -502,9 +536,7 @@ class RefreshDialog:
                                 return
 
                             # Increment progress bar
-                            item_current_counter = csv_tables.index(
-                                csv_table
-                            )
+                            item_current_counter += 1
                             self.progress_bar['value'] = item_current_counter
                             self.progress_label.config(
                                 text=Context.get_text(
@@ -568,7 +600,10 @@ class RefreshDialog:
                     case Action.INSTALL:
 
                         # Initialize progress bar
-                        item_total_counter = len(csv_playlists)
+                        item_current_counter = 0
+                        item_total_counter = self.__count_items_to_refresh(
+                            items=csv_playlists
+                        )
                         self.progress_bar.config(
                             maximum=item_total_counter
                         )
@@ -578,15 +613,17 @@ class RefreshDialog:
                             csv_playlist_id = csv_playlist[Constants.CSV_COL_ID]
                             csv_playlist_name = csv_playlist[Constants.CSV_COL_NAME]
 
+                            # Ignore item to refresh if requested
+                            if not self.__is_item_to_refresh(csv_playlist_id):
+                                continue
+
                             # Interrupt process if requested
                             if self.__interruption_requested:
                                 self.__on_close()
                                 return
 
                             # Increment progress bar
-                            item_current_counter = csv_playlists.index(
-                                csv_playlist
-                            )
+                            item_current_counter += 1
                             self.progress_bar['value'] = item_current_counter
                             self.progress_label.config(
                                 text=Context.get_text(
@@ -643,7 +680,10 @@ class RefreshDialog:
                     case Action.UNINSTALL:
 
                         # Initialize progress bar
-                        item_total_counter = len(bdd_playlists)
+                        item_current_counter = 0
+                        item_total_counter = self.__count_items_to_refresh(
+                            items=bdd_playlists
+                        )
                         self.progress_bar.config(
                             maximum=item_total_counter
                         )
@@ -653,15 +693,17 @@ class RefreshDialog:
                             bdd_playlist_id = bdd_playlist[Constants.BDD_COL_PLAYLIST_ID]
                             bdd_playlist_name = bdd_playlist[Constants.BDD_COL_PLAYLIST_NAME]
 
+                            # Ignore item to refresh if requested
+                            if not self.__is_item_to_refresh(bdd_playlist_id):
+                                continue
+
                             # Interrupt process if requested
                             if self.__interruption_requested:
                                 self.__on_close()
                                 return
 
                             # Increment progress bar
-                            item_current_counter = bdd_playlists.index(
-                                bdd_playlist
-                            )
+                            item_current_counter += 1
                             self.progress_bar['value'] = item_current_counter
                             self.progress_label.config(
                                 text=Context.get_text(
@@ -717,7 +759,10 @@ class RefreshDialog:
                     case Action.EXPORT:
 
                         # Initialize progress bar
-                        item_total_counter = len(bdd_playlists)
+                        item_current_counter = 0
+                        item_total_counter = self.__count_items_to_refresh(
+                            items=bdd_playlists
+                        )
                         self.progress_bar.config(
                             maximum=item_total_counter
                         )
@@ -727,15 +772,17 @@ class RefreshDialog:
                             bdd_playlist_id = bdd_playlist[Constants.BDD_COL_PLAYLIST_ID]
                             bdd_playlist_name = bdd_playlist[Constants.BDD_COL_PLAYLIST_NAME]
 
+                            # Ignore item to refresh if requested
+                            if not self.__is_item_to_refresh(bdd_playlist_id):
+                                continue
+
                             # Interrupt process if requested
                             if self.__interruption_requested:
                                 self.__on_close()
                                 return
 
                             # Increment progress bar
-                            item_current_counter = bdd_playlists.index(
-                                bdd_playlist
-                            )
+                            item_current_counter += 1
                             self.progress_bar['value'] = item_current_counter
                             self.progress_label.config(
                                 text=Context.get_text(
@@ -797,7 +844,10 @@ class RefreshDialog:
                     case Action.COPY:
 
                         # Initialize progress bar
-                        item_total_counter = len(csv_playlists)
+                        item_current_counter = 0
+                        item_total_counter = self.__count_items_to_refresh(
+                            items=csv_playlists
+                        )
                         self.progress_bar.config(
                             maximum=item_total_counter
                         )
@@ -807,15 +857,17 @@ class RefreshDialog:
                             csv_playlist_id = csv_playlist[Constants.CSV_COL_ID]
                             csv_playlist_name = csv_playlist[Constants.CSV_COL_NAME]
 
+                            # Ignore item to refresh if requested
+                            if not self.__is_item_to_refresh(csv_playlist_id):
+                                continue
+
                             # Interrupt process if requested
                             if self.__interruption_requested:
                                 self.__on_close()
                                 return
 
                             # Increment progress bar
-                            item_current_counter = csv_playlists.index(
-                                csv_playlist
-                            )
+                            item_current_counter += 1
                             self.progress_bar['value'] = item_current_counter
                             self.progress_label.config(
                                 text=Context.get_text(
@@ -846,7 +898,10 @@ class RefreshDialog:
                     case Action.EDIT:
 
                         # Initialize progress bar
-                        item_total_counter = len(csv_playlists)
+                        item_current_counter = 0
+                        item_total_counter = self.__count_items_to_refresh(
+                            items=csv_playlists
+                        )
                         self.progress_bar.config(
                             maximum=item_total_counter
                         )
@@ -856,15 +911,17 @@ class RefreshDialog:
                             csv_playlist_id = csv_playlist[Constants.CSV_COL_ID]
                             csv_playlist_name = csv_playlist[Constants.CSV_COL_NAME]
 
+                            # Ignore item to refresh if requested
+                            if not self.__is_item_to_refresh(csv_playlist_id):
+                                continue
+
                             # Interrupt process if requested
                             if self.__interruption_requested:
                                 self.__on_close()
                                 return
 
                             # Increment progress bar
-                            item_current_counter = csv_playlists.index(
-                                csv_playlist
-                            )
+                            item_current_counter += 1
                             self.progress_bar['value'] = item_current_counter
                             self.progress_label.config(
                                 text=Context.get_text(
@@ -911,12 +968,19 @@ class RefreshDialog:
                     case Action.INSTALL:
 
                         # Initialize progress bar
-                        item_total_counter = len(Constants.PINUP_BDD_TABLES)
+                        item_current_counter = 0
+                        item_total_counter = self.__count_items_to_refresh(
+                            items=Constants.PINUP_BDD_TABLES
+                        )
                         self.progress_bar.config(
                             maximum=item_total_counter
                         )
 
                         for bdd_table in Constants.PINUP_BDD_TABLES:
+
+                            # Ignore item to refresh if requested
+                            if not self.__is_item_to_refresh(bdd_table):
+                                continue
 
                             # Interrupt process if requested
                             if self.__interruption_requested:
@@ -924,9 +988,7 @@ class RefreshDialog:
                                 return
 
                             # Increment progress bar
-                            item_current_counter = Constants.PINUP_BDD_TABLES.index(
-                                bdd_table
-                            )
+                            item_current_counter += 1
                             self.progress_bar['value'] = item_current_counter
                             self.progress_label.config(
                                 text=Context.get_text(
@@ -961,12 +1023,19 @@ class RefreshDialog:
                     case Action.UNINSTALL:
 
                         # Initialize progress bar
-                        item_total_counter = len(Constants.PINUP_BDD_TABLES)
+                        item_current_counter = 0
+                        item_total_counter = self.__count_items_to_refresh(
+                            items=Constants.PINUP_BDD_TABLES
+                        )
                         self.progress_bar.config(
                             maximum=item_total_counter
                         )
 
                         for bdd_table in Constants.PINUP_BDD_TABLES:
+
+                            # Ignore item to refresh if requested
+                            if not self.__is_item_to_refresh(bdd_table):
+                                continue
 
                             # Interrupt process if requested
                             if self.__interruption_requested:
@@ -974,9 +1043,7 @@ class RefreshDialog:
                                 return
 
                             # Increment progress bar
-                            item_current_counter = Constants.PINUP_BDD_TABLES.index(
-                                bdd_table
-                            )
+                            item_current_counter += 1
                             self.progress_bar['value'] = item_current_counter
                             self.progress_label.config(
                                 text=Context.get_text(
@@ -1011,12 +1078,19 @@ class RefreshDialog:
                     case Action.EXPORT:
 
                         # Initialize progress bar
-                        item_total_counter = len(Constants.PINUP_BDD_TABLES)
+                        item_current_counter = 0
+                        item_total_counter = self.__count_items_to_refresh(
+                            items=Constants.PINUP_BDD_TABLES
+                        )
                         self.progress_bar.config(
                             maximum=item_total_counter
                         )
 
                         for bdd_table in Constants.PINUP_BDD_TABLES:
+
+                            # Ignore item to refresh if requested
+                            if not self.__is_item_to_refresh(bdd_table):
+                                continue
 
                             # Interrupt process if requested
                             if self.__interruption_requested:
@@ -1024,9 +1098,7 @@ class RefreshDialog:
                                 return
 
                             # Increment progress bar
-                            item_current_counter = Constants.PINUP_BDD_TABLES.index(
-                                bdd_table
-                            )
+                            item_current_counter += 1
                             self.progress_bar['value'] = item_current_counter
                             self.progress_label.config(
                                 text=Context.get_text(
@@ -1065,12 +1137,19 @@ class RefreshDialog:
                 )
 
                 # Initialize progress bar
-                item_total_counter = len(configs_paths)
+                item_current_counter = 0
+                item_total_counter = self.__count_items_to_refresh(
+                    items=configs_paths
+                )
                 self.progress_bar.config(
                     maximum=item_total_counter
                 )
 
                 for config in configs_paths:
+
+                    # Ignore item to refresh if requested
+                    if not self.__is_item_to_refresh(config):
+                        continue
 
                     # Interrupt process if requested
                     if self.__interruption_requested:
@@ -1078,9 +1157,7 @@ class RefreshDialog:
                         return
 
                     # Increment progress bar
-                    item_current_counter = configs_paths.index(
-                        config
-                    )
+                    item_current_counter += 1
                     self.progress_bar['value'] = item_current_counter
                     self.progress_label.config(
                         text=Context.get_text(
@@ -1141,6 +1218,22 @@ class RefreshDialog:
                     # Append row
                     table_top_rows.append(row)
 
+        # Create refresh file path if missing
+        refresh_file_path = Context.get_selected_rows_csv_path()
+        refresh_file_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # If with only ids, add rows not refreshed from CSV rows
+        if self.__is_with_only_ids():
+            for row in CsvHelper.read_data(
+                file_path=refresh_file_path,
+            ):
+                if self.__is_item_to_refresh(
+                    item_id=row[Constants.UI_TABLE_KEY_COL_ID]
+                ):
+                    continue
+
+                table_top_rows.append(row)
+
         # Sort rows depending on UI_TABLE_KEY_COLOR (desc) and Constants.UI_TABLE_KEY_COL_NAME (asc)
         sorted_rows = sorted(
             table_top_rows,
@@ -1165,8 +1258,6 @@ class RefreshDialog:
             csv_rows.append(csv_row)
 
         # Write data in a CSV file
-        refresh_file_path = Context.get_selected_rows_csv_path()
-        refresh_file_path.parent.mkdir(parents=True, exist_ok=True)
         CsvHelper.write_data(
             file_path=refresh_file_path,
             data=csv_rows,
@@ -1206,3 +1297,33 @@ class RefreshDialog:
                 parent=self.dialog
             ):
                 self.__interruption_requested = True
+
+    def __is_with_only_ids(
+        self
+    ):
+        """Specify if with only ids"""
+
+        return self.__only_ids is not None and \
+            len(self.__only_ids) > 0
+
+    def __is_item_to_refresh(
+        self,
+        item_id: str
+    ):
+        """Specify if the id has to be refreshed"""
+
+        if self.__is_with_only_ids():
+            return item_id in self.__only_ids
+
+        return True
+
+    def __count_items_to_refresh(
+        self,
+        items: list
+    ):
+        """Count how many items to refresh"""
+
+        if self.__is_with_only_ids():
+            return len(self.__only_ids)
+
+        return len(items)

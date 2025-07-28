@@ -108,7 +108,6 @@ class SetupDialog:
         # Retrieve general setup
         pinup_path = self.entry_pinup_path.get()
         simulated = self.simulation_boolean_var.get()
-        auto_refresh = self.auto_refresh_boolean_var.get()
         monitor = int(self.combo_monitor.get()) - 1
 
         # Retrieve emulators setup
@@ -181,7 +180,6 @@ class SetupDialog:
             Constants.SETUP_PINUP_PATH: pinup_path,
             Constants.SETUP_MONITOR: monitor,
             Constants.SETUP_SIMULATED: simulated,
-            Constants.SETUP_AUTO_REFRESH: auto_refresh,
             Constants.SETUP_AVAILABLE_EMULATORS: available_emulators,
             Constants.SETUP_AVAILABLE_MEDIA: available_media,
             Constants.SETUP_SCREEN_NUMBER_BY_MEDIA: screen_number_by_media
@@ -492,40 +490,6 @@ class SetupDialog:
         self.label_simulation.bind(
             "<Button-1>",
             lambda e: simulation_checkbox.invoke()
-        )
-
-        # Create auto refresh checkbox
-        auto_refresh_frame = tk.Frame(self.general_frame)
-        auto_refresh_frame.pack(
-            side=tk.TOP,
-            fill=tk.X,
-            padx=Constants.UI_PAD_SMALL,
-            pady=Constants.UI_PAD_SMALL
-        )
-        self.auto_refresh_boolean_var = tk.BooleanVar()
-        self.auto_refresh_boolean_var.trace_add(
-            "write",
-            self.__on_entry_changed
-        )
-        self.auto_refresh_boolean_var.set(
-            Context.is_auto_refresh()
-        )
-        auto_refresh_checkbox = tk.Checkbutton(
-            auto_refresh_frame,
-            variable=self.auto_refresh_boolean_var
-        )
-        auto_refresh_checkbox.pack(
-            side=tk.LEFT,
-        )
-        self.label_auto_refresh = tk.Label(
-            auto_refresh_frame
-        )
-        self.label_auto_refresh.pack(
-            side=tk.LEFT
-        )
-        self.label_auto_refresh.bind(
-            "<Button-1>",
-            lambda e: auto_refresh_checkbox.invoke()
         )
 
     def __create_emulators_components(self):
@@ -1537,13 +1501,6 @@ class SetupDialog:
         self.label_simulation.config(
             text=Context.get_text(
                 'simulation',
-                lang=self.__lang_code
-            )
-        )
-
-        self.label_auto_refresh.config(
-            text=Context.get_text(
-                'auto_refresh',
                 lang=self.__lang_code
             )
         )
