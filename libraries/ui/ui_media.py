@@ -743,7 +743,7 @@ class UIMedia(tk.LabelFrame):
                                 track.type == vlc.TrackType.audio:
 
                             # Execute ffmpeg in a subprocess
-                            command = Context.get_ffmpeg_path()
+                            command = str(Context.get_ffmpeg_path())
                             command += f' -i "{file_path}" '
                             command += '-af volumedetect -f null /dev/null'
                             ffmpeg_result = CmdHelper.retrieve_cmd_result(
@@ -823,7 +823,7 @@ class UIMedia(tk.LabelFrame):
         )
         command = 'start cmd /c'
         command += ' "'
-        command += Context.get_ffmpeg_path()
+        command += str(Context.get_ffmpeg_path())
         command += f' -i "{self.__current_file_path}"'
         command += f' {self.__transform_options}'
         command += f' "{temporary_output_path}"'
