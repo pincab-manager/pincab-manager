@@ -133,13 +133,7 @@ class WinRegHelper:
                 winreg.KEY_READ
             )
             return True
-        except Exception as exc:
-            LoggingHelper.log_error(
-                message=Context.get_text(
-                    'error_unknown'
-                ),
-                exc=exc
-            )
+        except Exception:
             return False
 
     @staticmethod
