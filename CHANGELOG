@@ -1,5 +1,8 @@
+R0.13.3 - 07/28/2025
+- fix(useless_log): Remove useless log when Winreg error
+
 R0.13.2 - 07/28/2025
-- fix(ui_media: Fix issues with UIMedia
+- fix(ui_media): Fix issues with UIMedia
 
 R0.13.1 - 07/28/2025
 - fix(path_str): Fix issue with path and str
