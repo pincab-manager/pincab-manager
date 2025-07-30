@@ -1,3 +1,6 @@
+R0.13.4 - 07/30/2025
+- fix(validate_entries): Fix issue with validate entries disabled
+
 R0.13.3 - 07/28/2025
 - fix(useless_log): Remove useless log when Winreg error
 
