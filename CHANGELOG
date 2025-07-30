@@ -1,3 +1,6 @@
+R0.13.5 - 07/30/2025
+- fix(apng): Fix missing media file apng
+
 R0.13.4 - 07/30/2025
 - fix(validate_entries): Fix issue with validate entries disabled
 

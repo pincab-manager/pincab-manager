@@ -183,7 +183,7 @@ class Constants:
         '.mp3', '.flac', '.wav', '.aac', '.ogg', '.wma', '.m4a', '.caf',
         '.opus', '.midi', '.mid', '.ape', '.dsf', '.dff',
         # Image
-        '.jpg', '.jpeg', '.png', '.bmp', '.gif', '.tiff'
+        '.jpg', '.jpeg', '.apng', '.png', '.bmp', '.gif', '.tiff'
     }
 
     # Constants for PINUP VIDEOS BATCH
