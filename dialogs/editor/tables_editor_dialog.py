@@ -737,7 +737,7 @@ class TablesEditorDialog:
                 selected_item_name
             )
 
-    def __on_selected_version_changed(self, *_):
+    def __on_selected_version_changed(self, *args):
         """Called when selected version changed"""
 
         if self.__current_csv_item is None:
@@ -795,6 +795,10 @@ class TablesEditorDialog:
 
         # Reinitialize listbox
         self.__reinit_listbox()
+
+        # Indicate that entry changed
+        if args is not None and len(args) > 0:
+            self.__on_entry_changed()
 
     def __on_entry_changed(self, *_):
         """Called when an entry changed"""
