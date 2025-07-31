@@ -157,14 +157,15 @@ class UIMedia(tk.LabelFrame):
                 label=Context.get_text('media_action_open_vlc'),
                 command=self.__open_vlc_window
             )
-            context_menu.add_command(
-                label=Context.get_text(
-                    'target_action_explore',
-                    target=Context.get_text('target_folder')
-                ),
-                command=self.__explore_folder
-            )
-            context_menu.add_separator()
+
+        context_menu.add_command(
+            label=Context.get_text(
+                'target_action_explore',
+                target=Context.get_text('target_folder')
+            ),
+            command=self.__explore_folder
+        )
+        context_menu.add_separator()
 
         # Actions to export/import/delete media
         context_menu.add_command(

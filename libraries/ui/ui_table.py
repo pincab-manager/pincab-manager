@@ -49,6 +49,7 @@ class UITable:
             )
             self.__button_select_all.pack(
                 side=tk.LEFT,
+                pady=Constants.UI_PAD_SMALL,
                 padx=Constants.UI_PAD_BIG
             )
             self.__button_deselect_all = tk.Button(
