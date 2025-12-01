@@ -82,7 +82,6 @@ class Constants:
 
     # Constants for paths
     RESOURCES_PATH = 'resources'
-    CONFIGS_PATH = 'configs'
     COMMON_PATH = 'common'
 
     # Constants for cache
