@@ -8,7 +8,7 @@ Bienvenue sur mon projet ! Voici les étapes pour l’installer, le configurer e
 4. Sélectionne l’action à effectuer.
 5. Lance l’action.
 
-Des vidéos tutoriels seront bientôt disponibles sur ma chaîne YouTube :  
+Des vidéos tutoriels sont disponibles sur ma chaîne YouTube :  
 🎥 [Visiter ma chaîne](https://www.youtube.com/@jaylooty_official)
 
 Tu as une question ou tu veux partager autour du projet ? Rejoins le Discord :  
@@ -29,7 +29,7 @@ Welcome to my project! Here are the steps to install, configure, and use it:
 4. Choose the action you want to perform.
 5. Run the action.
 
-Tutorial videos will be available soon on my YouTube channel:  
+Tutorial videos are available on my YouTube channel:  
 🎥 [Visit my channel](https://www.youtube.com/@jaylooty_official)
 
 Have questions or want to share about the project? Join the Discord server:  
