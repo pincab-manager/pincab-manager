@@ -246,7 +246,6 @@ class FileHelper:
         )
 
         try:
-            print()
             os.makedirs(os.path.dirname(
                 destination_folder_path), exist_ok=True)
             shutil.copytree(source_folder_path, destination_folder_path)
