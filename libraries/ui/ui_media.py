@@ -337,7 +337,7 @@ class UIMedia(tk.LabelFrame):
         """Close VLC window"""
 
         if self.__vlc_window is not None:
-            self.__safe_stop_media_player()
+            self.__vlc_media_player.stop()
             self.__vlc_window.destroy()
             self.__vlc_window = None
 
