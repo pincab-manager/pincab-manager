@@ -381,7 +381,7 @@ class UIMedia(tk.LabelFrame):
             self.__close_vlc_window()
 
             # Stop the media
-            self.__media_player.stop()
+            self.__safe_stop_media_player()
 
             # Delete the current file
             FileHelper.delete_file(
@@ -459,7 +459,7 @@ class UIMedia(tk.LabelFrame):
             self.__close_vlc_window()
 
             # Stop the media
-            self.__media_player.stop()
+            self.__safe_stop_media_player()
 
         # Create dirs if missing
         os.makedirs(self.__destination_path, exist_ok=True)
@@ -702,7 +702,7 @@ class UIMedia(tk.LabelFrame):
         self.__close_vlc_window()
 
         # Stop the media
-        self.__media_player.stop()
+        self.__safe_stop_media_player()
 
         # Delete the current file
         FileHelper.delete_file(
@@ -813,7 +813,7 @@ class UIMedia(tk.LabelFrame):
         self.__close_vlc_window()
 
         # Stop the media
-        self.__media_player.stop()
+        self.__safe_stop_media_player()
 
         # Retrieve extension
         _, file_extension = os.path.splitext(
@@ -1131,6 +1131,25 @@ class UIMedia(tk.LabelFrame):
         if self.__analysis_enabled:
             self.__photo_video_icon_label.image = video_icon_img
 
+    def __safe_stop_media_player(self, timeout=1):
+        """Stop media player safely"""
+
+        finished = threading.Event()
+
+        def _stop():
+            try:
+                self.__media_player.stop()
+            except Exception:
+                pass
+            finally:
+                finished.set()
+
+        t = threading.Thread(target=_stop, daemon=True)
+        t.start()
+
+        if not finished.wait(timeout):
+            print("⚠️ VLC stop blocked")
+
     def is_muted(self):
         """Specify if the media is muted"""
 
@@ -1148,7 +1167,7 @@ class UIMedia(tk.LabelFrame):
             vlc_params.append('--no-audio')
 
         # Stop media
-        self.__media_player.stop()
+        self.__safe_stop_media_player()
         self.__vlc_instance.release()
 
         # Initialize VLC
@@ -1175,7 +1194,7 @@ class UIMedia(tk.LabelFrame):
     def stop_media(self):
         """Stop the media"""
 
-        self.__media_player.stop()
+        self.__safe_stop_media_player()
         self.__media_frame.destroy()
         self.__vlc_instance.release()
 
@@ -1200,7 +1219,7 @@ class UIMedia(tk.LabelFrame):
         self.__close_vlc_window()
 
         # Stop the media
-        self.__media_player.stop()
+        self.__safe_stop_media_player()
 
         # Initialize each status
         self.__current_audio_analysis = False
