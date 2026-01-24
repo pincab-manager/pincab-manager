@@ -195,3 +195,7 @@ class Constants:
     REGEDIT_KEY_SEPARATOR = '\\'
     REGEDIT_FILE_EXTENSION = '.reg'
     REGEDIT_FILE_ENCODING = 'UTF-8'
+
+    # VPX constants
+    VPX_DEFAULT_EXE = 'VPinballX.exe'
+    VPX_UNINSTALL_FILE_NAME = 'uninstall'

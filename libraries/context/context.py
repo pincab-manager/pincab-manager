@@ -42,6 +42,7 @@ class Context:
     __selected_configs_rows = []
     __selected_folder_path = None
     __simulated: bool = False
+    __vpx_executables = []
     __available_emulators = []
     __available_media = []
     __screen_number_by_media = {}
@@ -645,6 +646,15 @@ class Context:
         return Context.__screen_number_by_media
 
     @staticmethod
+    def list_vpx_executables() -> dict:
+        """List VPX executables"""
+
+        if not Context.__initialized:
+            Context.init()
+
+        return Context.__vpx_executables
+
+    @staticmethod
     def update_context_from_setup():
         """Update context from setup"""
 
@@ -745,6 +755,23 @@ class Context:
                         Constants.SETUP_SCREEN_NUMBER_BY_MEDIA
                     ].replace('\'', '\"')
                 )
+
+            # Retrieve the list of VPX executables if VPX is available
+            if Emulator.VISUAL_PINBALL_X.value in Context.__available_emulators:
+                vpx_path = Context.__emulators_paths[
+                    Emulator.VISUAL_PINBALL_X
+                ]
+                Context.__vpx_executables = [
+                    entry.name
+                    for entry in os.scandir(vpx_path)
+                    if (
+                        entry.is_file()
+                        and entry.name.lower().endswith(".exe")
+                        and Constants.VPX_UNINSTALL_FILE_NAME not in entry.name.lower()
+                    )
+                ]
+                if len(Context.__vpx_executables) == 0:
+                    Context.__vpx_executables.append(Constants.VPX_DEFAULT_EXE)
 
     @staticmethod
     def get_selenium_web_browser() -> dict:

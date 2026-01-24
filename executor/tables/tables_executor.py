@@ -512,7 +512,7 @@ class TablesExecutor(AbstractExecutor):
                     # Set specific alt exe
                     table_alt_exe = csv_item.get(
                         Constants.CSV_COL_ALT_EXE,
-                        'VPinballX10_8_0_directx_64bit'
+                        Constants.VPX_DEFAULT_EXE
                     )
 
                     # Extract emulator if not already extracted

@@ -1941,23 +1941,24 @@ class TablesEditorDialog:
             self.info_available_checkbox_var.set(False)
 
         if Context.get_selected_emulator() == Emulator.VISUAL_PINBALL_X:
-
-            # Retrieve all emulator exe
-            all_emulator_exe = []
-            for a_csv_item in CsvHelper.read_data(
-                file_path=Context.get_csv_path()
-            ):
-                if a_csv_item[Constants.CSV_COL_ALT_EXE] not in all_emulator_exe:
-                    all_emulator_exe.append(
-                        a_csv_item[Constants.CSV_COL_ALT_EXE])
+            # List VPX executables
+            vpx_executables = Context.list_vpx_executables()
 
             # Update entries for VPX
             self.info_emulator_exe_combo.config(
-                values=all_emulator_exe
+                values=vpx_executables,
+                state="readonly"
             )
-            self.info_emulator_exe_combo.set(
-                self.__current_csv_item[Constants.CSV_COL_ALT_EXE]
-            )
+
+            # Try to select the VPX Executable from ALT EXE else set VPX_DEFAULT_EXE
+            if self.__current_csv_item[Constants.CSV_COL_ALT_EXE] in vpx_executables:
+                self.info_emulator_exe_combo.set(
+                    self.__current_csv_item[Constants.CSV_COL_ALT_EXE]
+                )
+            elif Constants.VPX_DEFAULT_EXE in vpx_executables:
+                self.info_emulator_exe_combo.set(Constants.VPX_DEFAULT_EXE)
+            elif len(vpx_executables) > 0:
+                self.info_emulator_exe_combo.set(vpx_executables[0])
 
         # Disable buttons to cancel or validate
         self.button_cancel.config(state=tk.DISABLED)
