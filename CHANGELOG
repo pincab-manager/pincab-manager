@@ -1,3 +1,6 @@
+R1.0.2 - 02/07/2026
+- fix(play_media_player): Play media player safely
+
 R1.0.1 - 01/24/2026
 - fix(vpx_executables): List VPX Executables from the VPX path
 

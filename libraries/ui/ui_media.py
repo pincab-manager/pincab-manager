@@ -1131,6 +1131,40 @@ class UIMedia(tk.LabelFrame):
         if self.__analysis_enabled:
             self.__photo_video_icon_label.image = video_icon_img
 
+    def __safe_play_media_player(self, media_path, timeout=1, wait_file_timeout=0.5):
+        """Play media player safely, waiting for file to be ready if needed"""
+
+        if not media_path or not os.path.exists(media_path):
+            print(f"❌ Media not found: {media_path}")
+
+        # Wait until the file is ready (size stable and > 0)
+        start = time.time()
+        last_size = -1
+        while time.time() - start < wait_file_timeout:
+            size = os.path.getsize(media_path)
+            if size == last_size and size > 0:
+                break
+            last_size = size
+            time.sleep(0.02)
+        else:
+            print(f"⚠️ File may not be fully ready: {media_path}")
+
+        finished = threading.Event()
+
+        def _play():
+            try:
+                self.__media_player.play()
+            except Exception:
+                pass
+            finally:
+                finished.set()
+
+        t = threading.Thread(target=_play, daemon=True)
+        t.start()
+
+        if not finished.wait(timeout):
+            print("⚠️ VLC play blocked")
+
     def __safe_stop_media_player(self, timeout=1):
         """Stop media player safely"""
 
@@ -1280,6 +1314,9 @@ class UIMedia(tk.LabelFrame):
                 self.__media_player.set_media(media)
 
                 # Play media
+                self.__safe_play_media_player(
+                    media_path=self.__current_file_path
+                )
                 self.__media_player.play()
 
                 if self.__analysis_enabled:
