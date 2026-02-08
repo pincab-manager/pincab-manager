@@ -30,17 +30,10 @@ class RegistryKeySelectorDialog:
         self.__registry_keys_tree = WinRegHelper.get_user_keys_tree()
 
         # Create dialog
-        self.__dialog = tk.Toplevel(parent)
+        self.__dialog = UIHelper.create_dialog(parent)
 
         # Fix dialog's title
         self.__dialog.title(Context.get_text('registry_key_selector'))
-
-        # Fix dialog's size and position
-        UIHelper.center_dialog(
-            dialog=self.__dialog,
-            width=800,
-            height=450
-        )
 
         # Force bg to avoid black panel when loading
         self.__dialog.configure(bg="SystemButtonFace")
@@ -74,6 +67,13 @@ class RegistryKeySelectorDialog:
 
         # Bind closing event
         self.__dialog.protocol("WM_DELETE_WINDOW", self.__on_close)
+
+        # Fix dialog's size and position
+        UIHelper.center_dialog(
+            dialog=self.__dialog,
+            width=800,
+            height=450
+        )
 
     def __create_selection_components(self):
         """Create selection components"""

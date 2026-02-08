@@ -48,17 +48,10 @@ class PlaylistsEditorDialog:
         self.__current_csv_item = None
 
         # Create dialog
-        self.__dialog = tk.Toplevel(parent)
+        self.__dialog = UIHelper.create_dialog(parent)
 
         # Fix dialog's title
         self.__dialog.title(Context.get_text('edit_playlists'))
-
-        # Fix dialog's size and position
-        UIHelper.center_dialog(
-            dialog=self.__dialog,
-            width=1000,
-            height=900
-        )
 
         # Force bg to avoid black panel when loading
         self.__dialog.configure(bg="SystemButtonFace")
@@ -93,6 +86,13 @@ class PlaylistsEditorDialog:
 
         # Select the first row
         self.__table.set_selected_rows([0])
+
+        # Fix dialog's size and position
+        UIHelper.center_dialog(
+            dialog=self.__dialog,
+            width=1000,
+            height=900
+        )
 
     def __create_playlists_components(self):
         """Create playlists components"""

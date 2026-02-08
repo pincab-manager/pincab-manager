@@ -40,7 +40,7 @@ class RefreshDialog:
         self.__callback = callback
 
         # Create dialog
-        self.dialog = tk.Toplevel(parent)
+        self.dialog = UIHelper.create_dialog(parent)
 
         # Fix dialog's title
         self.dialog.title(Context.get_text(
@@ -49,13 +49,6 @@ class RefreshDialog:
                 Context.get_selected_category().value
             )
         ))
-
-        # Fix dialog's size and position
-        UIHelper.center_dialog(
-            dialog=self.dialog,
-            width=480,
-            height=75
-        )
 
         # Add a progress bar
         self.progress_bar = ttk.Progressbar(
@@ -85,6 +78,13 @@ class RefreshDialog:
             target=self.__refresh
         )
         execution_thread.start()
+
+        # Fix dialog's size and position
+        UIHelper.center_dialog(
+            dialog=self.dialog,
+            width=480,
+            height=75
+        )
 
     def __refresh(self):
         """Refresh"""

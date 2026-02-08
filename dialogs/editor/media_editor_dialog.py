@@ -40,17 +40,10 @@ class MediaEditorDialog:
         self.__media_analysis_checkbox_var = tk.BooleanVar()
 
         # Create dialog
-        self.__dialog = tk.Toplevel(parent)
+        self.__dialog = UIHelper.create_dialog(parent)
 
         # Fix dialog's title
         self.__dialog.title(Context.get_text('edit_media'))
-
-        # Fix dialog's size and position
-        UIHelper.center_dialog(
-            dialog=self.__dialog,
-            width=1200,
-            height=1000
-        )
 
         # Force bg to avoid black panel when loading
         self.__dialog.configure(bg="SystemButtonFace")
@@ -96,6 +89,13 @@ class MediaEditorDialog:
                 padx=Constants.UI_PAD_SMALL,
                 pady=Constants.UI_PAD_SMALL
             )
+
+        # Fix dialog's size and position
+        UIHelper.center_dialog(
+            dialog=self.__dialog,
+            width=1200,
+            height=1000
+        )
 
     def __create_category_components(self):
         """Create category components"""

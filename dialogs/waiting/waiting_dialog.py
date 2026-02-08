@@ -31,20 +31,13 @@ class WaitingDialog:
         self.__interruption_requested = False
 
         # Create dialog
-        self.__dialog = tk.Toplevel(parent)
+        self.__dialog = UIHelper.create_dialog(parent)
 
         # Fix dialog's title
         self.__dialog.title(
             Context.get_text(
                 'waiting'
             )
-        )
-
-        # Fix dialog's size and position
-        UIHelper.center_dialog(
-            dialog=self.__dialog,
-            width=320,
-            height=80
         )
 
         # Add a label with a progress bar
@@ -79,6 +72,13 @@ class WaitingDialog:
 
         # Bind closing event
         self.__dialog.protocol("WM_DELETE_WINDOW", self.__on_close)
+
+        # Fix dialog's size and position
+        UIHelper.center_dialog(
+            dialog=self.__dialog,
+            width=320,
+            height=80
+        )
 
     def __run_process(self):
         """Run process"""

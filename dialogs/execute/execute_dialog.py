@@ -32,17 +32,10 @@ class ExecuteDialog:
         self.__callback = callback
 
         # Create dialog
-        self.dialog = tk.Toplevel(parent)
+        self.dialog = UIHelper.create_dialog(parent)
 
         # Fix dialog's title
         self.dialog.title(Context.get_text('execution'))
-
-        # Fix dialog's size and position
-        UIHelper.center_dialog(
-            dialog=self.dialog,
-            width=800,
-            height=600
-        )
 
         # Add a progress bar
         progress_bar = ttk.Progressbar(
@@ -150,6 +143,13 @@ class ExecuteDialog:
 
         # Bind closing event
         self.dialog.protocol("WM_DELETE_WINDOW", self.__on_close)
+
+        # Fix dialog's size and position
+        UIHelper.center_dialog(
+            dialog=self.dialog,
+            width=800,
+            height=600
+        )
 
     def __close_after_execution_stopped(self):
         """Close after execution stopped"""

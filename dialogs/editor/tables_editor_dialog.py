@@ -62,17 +62,10 @@ class TablesEditorDialog:
         self.__vlc_instance = vlc.Instance()
 
         # Create dialog
-        self.__dialog = tk.Toplevel(parent)
+        self.__dialog = UIHelper.create_dialog(parent)
 
         # Fix dialog's title
         self.__dialog.title(Context.get_text('edit_tables'))
-
-        # Fix dialog's size and position
-        UIHelper.center_dialog(
-            dialog=self.__dialog,
-            width=1200,
-            height=1000
-        )
 
         # Force bg to avoid black panel when loading
         self.__dialog.configure(bg="SystemButtonFace")
@@ -110,6 +103,13 @@ class TablesEditorDialog:
 
         # Advise that selected version changed
         self.__on_selected_version_changed()
+
+        # Fix dialog's size and position
+        UIHelper.center_dialog(
+            dialog=self.__dialog,
+            width=1200,
+            height=1000
+        )
 
     def __create_tables_components(self):
         """Create tables components"""

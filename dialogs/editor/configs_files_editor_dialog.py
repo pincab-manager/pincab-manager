@@ -47,17 +47,10 @@ class ConfigsFilesEditorDialog:
         self.__context_menu_commands_count = 0
 
         # Create dialog
-        self.__dialog = tk.Toplevel(parent)
+        self.__dialog = UIHelper.create_dialog(parent)
 
         # Fix dialog's title
         self.__dialog.title(Context.get_text('edit_configs_files'))
-
-        # Fix dialog's size and position
-        UIHelper.center_dialog(
-            dialog=self.__dialog,
-            width=800,
-            height=450
-        )
 
         # Force bg to avoid black panel when loading
         self.__dialog.configure(bg="SystemButtonFace")
@@ -92,6 +85,13 @@ class ConfigsFilesEditorDialog:
 
         # Select the first row
         self.__table.set_selected_rows([0])
+
+        # Fix dialog's size and position
+        UIHelper.center_dialog(
+            dialog=self.__dialog,
+            width=800,
+            height=450
+        )
 
     def __create_configs_components(self):
         """Create configs components"""

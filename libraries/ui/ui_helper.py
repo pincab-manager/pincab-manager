@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 """UI Helper"""
 
+import tkinter as tk
+
 from tkinter import Widget, Wm, ttk
 
 import screeninfo
@@ -46,6 +48,21 @@ class UIHelper:
         window.geometry(f'{width}x{height}+{x}+{y}')
 
     @staticmethod
+    def create_dialog(
+        parent: Wm
+    ):
+        """Create a dialog"""
+
+        # Create dialog
+        dialog = tk.Toplevel(parent)
+
+        # Hide parent and dialog
+        parent.withdraw()
+        dialog.withdraw()
+
+        return dialog
+
+    @staticmethod
     def center_dialog(
         dialog: Wm,
         width: int,
@@ -82,9 +99,6 @@ class UIHelper:
             lambda: UIHelper.close_dialog(dialog)
         )
 
-        # Hide the window
-        parent_window.withdraw()
-
         # Give the dialog focus
         dialog.lift()
         dialog.attributes('-topmost', True)
@@ -96,6 +110,9 @@ class UIHelper:
             width=width,
             height=height
         )
+
+        # Show the dialog
+        dialog.deiconify()
 
     @staticmethod
     def close_dialog(

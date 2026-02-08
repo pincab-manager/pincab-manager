@@ -31,14 +31,7 @@ class SetupDialog:
         self.__lang_code = Context.get_lang_code()
 
         # Create dialog
-        self.dialog = tk.Toplevel(parent)
-
-        # Fix dialog's size and position
-        UIHelper.center_dialog(
-            dialog=self.dialog,
-            width=800,
-            height=900
-        )
+        self.dialog = UIHelper.create_dialog(parent)
 
         # Create top frame
         self.top_frame = tk.Frame(
@@ -86,6 +79,13 @@ class SetupDialog:
 
         # Update screen about entry changed
         self.__on_entry_changed(None)
+
+        # Fix dialog's size and position
+        UIHelper.center_dialog(
+            dialog=self.dialog,
+            width=800,
+            height=900
+        )
 
     def __browse_folder(
         self,

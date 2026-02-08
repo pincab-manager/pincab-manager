@@ -32,17 +32,10 @@ class AboutDialog:
         self.__exe_asset = None
 
         # Create dialog
-        self.dialog = tk.Toplevel(parent)
+        self.dialog = UIHelper.create_dialog(parent)
 
         # Fix dialog's title
         self.dialog.title(Context.get_text('about'))
-
-        # Fix dialog's size and position
-        UIHelper.center_dialog(
-            dialog=self.dialog,
-            width=600,
-            height=500
-        )
 
         # Image
         self.__logo = tk.PhotoImage(
@@ -108,6 +101,13 @@ class AboutDialog:
             font=("Arial", 12, "bold")
         )
         donate_button.pack(pady=20)
+
+        # Fix dialog's size and position
+        UIHelper.center_dialog(
+            dialog=self.dialog,
+            width=600,
+            height=500
+        )
 
     def check_update(self):
         """Check GitHub latest release"""
