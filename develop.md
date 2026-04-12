@@ -25,7 +25,7 @@ sudo apt install python3-tk
 ```
 - **requirements** using **pip3**:
 ```bash
-pip3 install -r requirements
+pip3 install -r requirements.txt
 ```
 
 ## Testing locally
