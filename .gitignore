@@ -14,4 +14,4 @@ cache/
 # Package
 build
 dist
-app.spec
+*.spec
