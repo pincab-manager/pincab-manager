@@ -81,7 +81,11 @@ class FileHelper:
         folder_path: str
     ):
         """List sub directories for the specified folder"""
-        return os.listdir(folder_path)
+        return [
+            item for item in os.listdir(folder_path)
+            if os.path.isdir(os.path.join(folder_path, item))
+            and not item.startswith(".")
+        ]
 
     @staticmethod
     def list_relative_paths(
