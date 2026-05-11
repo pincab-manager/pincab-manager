@@ -126,6 +126,14 @@ class Verifier:
 
         if weblink_version is not None:
             latest_version = weblink_version in sub_directories
+            if not latest_version and unique_version:
+                LoggingHelper.log_warning(
+                    message=Context.get_text(
+                        'warning_not_latest_version',
+                        version1=str(sub_directories[0]),
+                        version2=str(weblink_version)
+                    )
+                )
 
         return (latest_version, unique_version)
 

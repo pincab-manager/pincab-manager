@@ -140,7 +140,6 @@ class Context:
 
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument("--window-position=-32000,-32000")
-        chrome_options.add_argument("--window-size=1,1")
         chrome_options.add_argument("--log-level=3")
         chrome_options.add_experimental_option(
             "excludeSwitches", ["enable-logging"]
