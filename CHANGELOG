@@ -1,9 +1,7 @@
-R1.1.2 - 2026/05/11
-- fix(hidden): Ignore hidden files and directories when listing directories
-
 R1.1.1 - 2026/05/11
 - fix(warning_not_latest_version): Add warning when lot latest version
 - fix(selenium_issue): Fix issue with selenium to check the latest version
+- fix(hidden): Ignore hidden files and directories when listing directories or files
 
 R1.1.0 - 2026/03/01
 - feat(release): Create first release

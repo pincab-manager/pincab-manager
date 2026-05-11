@@ -103,6 +103,10 @@ class FileHelper:
                 )
             )
         for root, dirs, files in os.walk(folder_path):
+            # Ignore hidden folders/files (.DS_Store, .git, etc.)
+            dirs[:] = [d for d in dirs if not d.startswith(".")]
+            files = [f for f in files if not f.startswith(".")]
+
             # If a folder exists with the name of the file, add sub files
             if file_name in dirs:
                 sub_folder_path = os.path.join(
