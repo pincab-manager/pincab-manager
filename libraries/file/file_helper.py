@@ -24,9 +24,13 @@ class FileHelper:
         folder_path: str
     ) -> bool:
         """Delete a folder"""
-        if not FileHelper.is_folder_exists(
-            folder_path=folder_path
-        ):
+        if not os.path.isdir(folder_path):
+            LoggingHelper.log_warning(
+                message=Context.get_text(
+                    'warning_not_found_folder',
+                    folder=str(folder_path)
+                )
+            )
             return False
 
         if Context.is_simulated():
@@ -81,6 +85,14 @@ class FileHelper:
         folder_path: str
     ):
         """List files and folders for the specified folder"""
+        if not os.path.isdir(folder_path):
+            LoggingHelper.log_warning(
+                message=Context.get_text(
+                    'warning_not_found_folder',
+                    folder=str(folder_path)
+                )
+            )
+            return ([], [])
 
         # List files and folders for the specified path
         files_or_folders = os.listdir(folder_path)
@@ -109,6 +121,7 @@ class FileHelper:
     ):
         """List recursively relative paths for the specified name"""
         result = []
+
         if not os.path.isdir(folder_path):
             LoggingHelper.log_warning(
                 message=Context.get_text(
@@ -116,6 +129,8 @@ class FileHelper:
                     folder=str(folder_path)
                 )
             )
+            return []
+
         for root, dirs, files in os.walk(folder_path):
             # Ignore hidden folders/files (.DS_Store, .git, etc.)
             dirs[:] = [d for d in dirs if not d.startswith(".")]
