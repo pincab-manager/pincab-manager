@@ -1,3 +1,6 @@
+R1.1.2 - 2026/05/17
+- fix(list_files_and_folders): Use the function list_files_and_folders to list files and folders for a specified path
+
 R1.1.1 - 2026/05/11
 - fix(warning_not_latest_version): Add warning when lot latest version
 - fix(selenium_issue): Fix issue with selenium to check the latest version

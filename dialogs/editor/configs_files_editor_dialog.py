@@ -1159,18 +1159,9 @@ class ConfigsFilesEditorDialog:
                 )
 
             # Show files then folders
-            items = FileHelper.list_sub_directories(
+            files, folders = FileHelper.list_files_and_folders(
                 folder_path=self.__current_folder_path
             )
-            files = []
-            folders = []
-
-            for item in items:
-                item_path = os.path.join(self.__current_folder_path, item)
-                if os.path.isdir(item_path):
-                    folders.append(item)
-                else:
-                    files.append(item)
 
             for folder in folders:
                 self.__listbox.insert(

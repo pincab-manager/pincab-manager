@@ -65,8 +65,8 @@ class Verifier:
         if Verifier.verify_none_value(csv_table_id):
             return (latest_version, unique_version)
 
-        # Retrieve sub directories to identify if unique version
-        sub_directories = FileHelper.list_sub_directories(
+        # Retrieve folders to identify if unique version
+        _, folders = FileHelper.list_files_and_folders(
             folder_path=os.path.join(
                 Context.get_working_path(),
                 'tables',
@@ -75,7 +75,7 @@ class Verifier:
             )
         )
 
-        unique_version = len(sub_directories) == 1
+        unique_version = len(folders) == 1
 
         # Retrieve version from weblink
         weblink_version = None
@@ -125,12 +125,12 @@ class Verifier:
                 )
 
         if weblink_version is not None:
-            latest_version = weblink_version in sub_directories
+            latest_version = weblink_version in folders
             if not latest_version and unique_version:
                 LoggingHelper.log_warning(
                     message=Context.get_text(
                         'warning_not_latest_version',
-                        version1=str(sub_directories[0]),
+                        version1=str(folders[0]),
                         version2=str(weblink_version)
                     )
                 )
@@ -146,8 +146,8 @@ class Verifier:
         if Verifier.verify_none_value(csv_playlist_id):
             return False
 
-        # Retrieve sub directories to identify if unique version
-        sub_directories = FileHelper.list_sub_directories(
+        # Retrieve folders to identify if unique version
+        _, folders = FileHelper.list_files_and_folders(
             folder_path=os.path.join(
                 Context.get_working_path(),
                 'playlists',
@@ -155,7 +155,7 @@ class Verifier:
             )
         )
 
-        return len(sub_directories) == 1
+        return len(folders) == 1
 
     @staticmethod
     def verify_table_emulator_install(

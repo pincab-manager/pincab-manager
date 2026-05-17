@@ -77,15 +77,29 @@ class FileHelper:
         return size_file1 == size_file2
 
     @staticmethod
-    def list_sub_directories(
+    def list_files_and_folders(
         folder_path: str
     ):
-        """List sub directories for the specified folder"""
-        return [
-            item for item in os.listdir(folder_path)
+        """List files and folders for the specified folder"""
+
+        # List files and folders for the specified path
+        files_or_folders = os.listdir(folder_path)
+
+        # List files
+        files = [
+            item for item in files_or_folders
+            if not os.path.isdir(os.path.join(folder_path, item))
+            and not item.startswith(".")
+        ]
+
+        # List folders
+        folders = [
+            item for item in files_or_folders
             if os.path.isdir(os.path.join(folder_path, item))
             and not item.startswith(".")
         ]
+
+        return (files, folders)
 
     @staticmethod
     def list_relative_paths(

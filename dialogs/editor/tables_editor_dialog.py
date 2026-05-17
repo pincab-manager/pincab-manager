@@ -769,17 +769,17 @@ class TablesEditorDialog:
             'PUPVideos'
         )
 
-        videos_sub_directories = []
+        videos_folders = []
         if FileHelper.is_folder_exists(
             folder_path=self.__current_videos_path
         ):
-            videos_sub_directories = FileHelper.list_sub_directories(
+            _, videos_folders = FileHelper.list_files_and_folders(
                 folder_path=self.__current_videos_path
             )
 
         # Update videos path
-        if len(videos_sub_directories) > 0:
-            self.__current_csv_item[Constants.CSV_COL_VIDEOS_PATH] = videos_sub_directories[0]
+        if len(videos_folders) > 0:
+            self.__current_csv_item[Constants.CSV_COL_VIDEOS_PATH] = videos_folders[0]
         else:
             self.__current_csv_item[Constants.CSV_COL_VIDEOS_PATH] = None
 
@@ -1874,7 +1874,7 @@ class TablesEditorDialog:
         )
 
         # Retrieve all versions and current version
-        all_versions = FileHelper.list_sub_directories(
+        _, folders = FileHelper.list_files_and_folders(
             folder_path=os.path.join(
                 Context.get_working_path(),
                 'tables',
@@ -1885,7 +1885,7 @@ class TablesEditorDialog:
 
         # Update versions components
         self.info_current_version_combo.config(
-            values=all_versions
+            values=folders
         )
         self.info_current_version_combo.set(item_version)
 
@@ -2672,18 +2672,9 @@ class TablesEditorDialog:
                 )
 
             # Show files then folders
-            items = FileHelper.list_sub_directories(
+            files, folders = FileHelper.list_files_and_folders(
                 folder_path=self.__current_folder_path
             )
-            files = []
-            folders = []
-
-            for item in items:
-                item_path = os.path.join(self.__current_folder_path, item)
-                if os.path.isdir(item_path):
-                    folders.append(item)
-                else:
-                    files.append(item)
 
             for folder in folders:
                 self.__listbox.insert(

@@ -1132,20 +1132,20 @@ class RefreshDialog:
                 if not os.path.exists(Context.get_configs_path()):
                     os.makedirs(Context.get_configs_path())
 
-                configs_paths = FileHelper.list_sub_directories(
+                _, folders = FileHelper.list_files_and_folders(
                     folder_path=Context.get_configs_path()
                 )
 
                 # Initialize progress bar
                 item_current_counter = 0
                 item_total_counter = self.__count_items_to_refresh(
-                    items=configs_paths
+                    items=folders
                 )
                 self.progress_bar.config(
                     maximum=item_total_counter
                 )
 
-                for config in configs_paths:
+                for config in folders:
 
                     # Ignore item to refresh if requested
                     if not self.__is_item_to_refresh(config):

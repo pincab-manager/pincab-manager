@@ -1092,7 +1092,7 @@ class PlaylistsEditorDialog:
         )
 
         # Retrieve all versions and current version
-        all_versions = FileHelper.list_sub_directories(
+        _, folders = FileHelper.list_files_and_folders(
             folder_path=os.path.join(
                 Context.get_working_path(),
                 'playlists',
@@ -1102,7 +1102,7 @@ class PlaylistsEditorDialog:
 
         # Update versions components
         self.info_current_version_combo.config(
-            values=all_versions
+            values=folders
         )
         self.info_current_version_combo.set(item_version)
         self.button_delete_version.config(state=tk.DISABLED)
