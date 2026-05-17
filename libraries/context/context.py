@@ -147,7 +147,6 @@ class Context:
         Context.__selenium_web_browser = webdriver.Chrome(
             options=chrome_options
         )
-        Context.__selenium_web_browser.minimize_window()
 
     @staticmethod
     def destroy_selenium_web_browser():
